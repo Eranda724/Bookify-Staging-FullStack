@@ -3,19 +3,19 @@ import { Link, useNavigate } from "react-router-dom";
 import image1 from "../../images/1ae6e703-2e7a-4be5-9ca1-13a2cdd82738.png";
 import { FcGoogle } from "react-icons/fc";
 import { FaGithub, FaFacebook } from "react-icons/fa6";
-import { registerUser } from "../../services/api";
+import { registerservice } from "../../services/api";
 
-const RegisterForm = () => {
+const RegisterService = () => {
   const navigate = useNavigate();
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
-    fullName: "",
+    username: "",
     email: "",
     password: "",
     confirmPassword: "",
-    role: "SERVICE_PROVIDER",
     termsAccepted: false,
+    category: "",
   });
 
   const handleChange = (e) => {
@@ -47,18 +47,9 @@ const RegisterForm = () => {
     }
 
     try {
-      const registrationData = {
-        name: formData.fullName,
-        email: formData.email,
-        password: formData.password,
-        confirmPassword: formData.confirmPassword,
-        role: formData.role,
-        termsAccepted: formData.termsAccepted,
-      };
-
-      const response = await registerUser(registrationData);
+      const response = await registerservice(formData);
       console.log("Registration successful:", response);
-      navigate("/ServiceProviderLogin");
+      navigate("/service-provider/login");
     } catch (error) {
       console.error("Registration failed:", error);
       if (error.message === "Failed to fetch") {
@@ -104,13 +95,13 @@ const RegisterForm = () => {
               </Link>
             </p>
             <label className="block text-gray-700 text-left mb-1">
-              Full Name:
+              Username:
             </label>
             <input
               type="text"
-              name="fullName"
-              placeholder="Full Name"
-              value={formData.fullName}
+              name="username"
+              placeholder="Choose a username"
+              value={formData.username}
               onChange={handleChange}
               className="w-full p-2 border rounded mb-2"
               required
@@ -154,19 +145,25 @@ const RegisterForm = () => {
               className="w-full p-2 border rounded mb-2"
               required
             />
-
-            <label className="flex items-center mt-2">Role:</label>
-            <div className="flex items-center mt-2">
-              <input
-                type="text"
-                name="role"
-                placeholder="role"
-                value={formData.role}
-                onChange={handleChange}
-                className="w-full p-2 border rounded mb-2"
-                required
-              />
-            </div>
+            <label className="block text-gray-700 text-left mb-1">
+              Category:
+            </label>
+            <select
+              name="category"
+              value={formData.category}
+              onChange={handleChange}
+              className="w-full p-2 border rounded mb-2"
+              required
+            >
+              <option value="">Select a category</option>
+              <option value="DOCTOR">Doctor</option>
+              <option value="NURSE">Nurse</option>
+              <option value="PHYSIOTHERAPIST">Physiotherapist</option>
+              <option value="DENTIST">Dentist</option>
+              <option value="PHARMACIST">Pharmacist</option>
+              <option value="LAB_TECHNICIAN">Lab Technician</option>
+              <option value="OTHER">Other</option>
+            </select>
 
             <div className="flex items-center mt-2">
               <input
@@ -185,7 +182,7 @@ const RegisterForm = () => {
             <button
               type="submit"
               disabled={isLoading}
-              className={`w-[25%] mt-3 py-1 bg-[#27D5E5] rounded hover:bg-[#1CB8CC] ${
+              className={`w-full mt-3 py-2 bg-[#27D5E5] rounded hover:bg-[#1CB8CC] text-white font-medium ${
                 isLoading ? "opacity-50 cursor-not-allowed" : ""
               }`}
             >
@@ -211,4 +208,4 @@ const RegisterForm = () => {
   );
 };
 
-export default RegisterForm;
+export default RegisterService;

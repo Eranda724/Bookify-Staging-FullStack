@@ -33,11 +33,8 @@ const handleNetworkError = (error) => {
 };
 
 // Registration endpoints
-export const registerUser = async (formData) => {
-  const endpoint =
-    formData.role === "SERVICE_PROVIDER"
-      ? "auth/service-provider/register"
-      : "auth/consumer/register";
+export const registerservice = async (formData) => {
+  const endpoint = "auth/service-provider/register";
 
   // Add logging to debug the request
   console.log("Registration request:", {
@@ -51,41 +48,53 @@ export const registerUser = async (formData) => {
       "Content-Type": "application/json",
       Accept: "application/json",
       "Access-Control-Allow-Origin": "*",
+      "Access-Control-Allow-Methods": "POST, OPTIONS",
+      "Access-Control-Allow-Headers": "Content-Type, Authorization",
     },
+    credentials: "include",
     body: JSON.stringify({
-      name: formData.name,
+      username: formData.username,
       email: formData.email,
       password: formData.password,
       confirmPassword: formData.confirmPassword,
-      role: formData.role || "CONSUMER", // Default to CONSUMER if not specified
+      category: formData.category,
       termsAccepted: formData.termsAccepted,
     }),
   });
 
-  // Add logging to debug the response
-  console.log("Registration response status:", response.status);
+  return handleResponse(response);
+};
 
-  // First check if the response is ok
-  if (!response.ok) {
-    const errorText = await response.text();
-    console.log("Registration error:", errorText);
-    try {
-      const errorJson = JSON.parse(errorText);
-      throw new Error(errorJson.message || "Registration failed");
-    } catch (e) {
-      throw new Error(errorText || "Registration failed");
-    }
-  }
+export const registercustomer = async (formData) => {
+  const endpoint = "auth/consumer/register";
 
-  // Try to parse JSON response
-  try {
-    const data = await response.json();
-    console.log("Registration success:", data);
-    return data;
-  } catch (e) {
-    // If response is not JSON but status was ok, consider it successful
-    return { success: true };
-  }
+  // Add logging to debug the request
+  console.log("Registration request:", {
+    url: `${BASE_URL}${endpoint}`,
+    data: formData,
+  });
+
+  const response = await fetch(`${BASE_URL}${endpoint}`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Accept: "application/json",
+      "Access-Control-Allow-Origin": "*",
+      "Access-Control-Allow-Methods": "POST, OPTIONS",
+      "Access-Control-Allow-Headers": "Content-Type, Authorization",
+    },
+    credentials: "include",
+    body: JSON.stringify({
+      username: formData.username,
+      email: formData.email,
+      password: formData.password,
+      confirmPassword: formData.confirmPassword,
+      role: "CONSUMER",
+      termsAccepted: formData.termsAccepted,
+    }),
+  });
+
+  return handleResponse(response);
 };
 
 // Login endpoints
@@ -93,15 +102,19 @@ export const loginUser = async (formData) => {
   try {
     const endpoint =
       formData.role === "SERVICE_PROVIDER"
-        ? "/service-provider/login"
-        : "/consumer/login";
+        ? "auth/service-provider/login"
+        : "auth/consumer/login";
 
     const response = await fetch(`${BASE_URL}${endpoint}`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(formData),
+      body: JSON.stringify({
+        username: formData.username,
+        password: formData.password,
+        role: formData.role,
+      }),
     });
 
     const data = await handleResponse(response);
@@ -109,6 +122,13 @@ export const loginUser = async (formData) => {
     if (data.token) {
       localStorage.setItem("token", data.token);
       localStorage.setItem("userRole", formData.role);
+      localStorage.setItem("username", formData.username);
+
+      // Return the data along with the role for navigation
+      return {
+        ...data,
+        role: formData.role,
+      };
     }
     return data;
   } catch (error) {

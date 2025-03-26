@@ -4,17 +4,16 @@ import image1 from "../../images/1ae6e703-2e7a-4be5-9ca1-13a2cdd82738.png";
 import { FcGoogle } from "react-icons/fc";
 import { FaGithub, FaFacebook } from "react-icons/fa6";
 
-import { registerUser } from "../../services/api";
+import { registercustomer } from "../../services/api";
 
-const Register = () => {
+const RegisterCustomer = () => {
   const navigate = useNavigate();
   const [error, setError] = useState("");
   const [formData, setFormData] = useState({
-    name: "",
+    username: "",
     email: "",
     password: "",
     confirmPassword: "",
-    role: "CONSUMER",
     termsAccepted: false,
   });
 
@@ -44,7 +43,7 @@ const Register = () => {
     }
 
     try {
-      const response = await registerUser(formData);
+      const response = await registercustomer(formData);
       console.log("Registration successful:", response);
       navigate("/ConsumerLogin");
     } catch (error) {
@@ -86,13 +85,13 @@ const Register = () => {
             )}
 
             <label className="block text-gray-700 text-left mb-1">
-              Full Name:
+              Username:
             </label>
             <input
               type="text"
-              name="name"
-              placeholder="Full Name"
-              value={formData.name}
+              name="username"
+              placeholder="Choose a username"
+              value={formData.username}
               onChange={handleChange}
               className="w-full p-2 border rounded mb-2"
               required
@@ -186,4 +185,4 @@ const Register = () => {
   );
 };
 
-export default Register;
+export default RegisterCustomer;
