@@ -29,7 +29,7 @@ public class Notification {
     private Integer notificationId;
 
     @ManyToOne
-    @JoinColumn(name = "client_id")
+    @JoinColumn(name = "consumer_id")
     private Client client;
 
     @Column(columnDefinition = "TEXT")

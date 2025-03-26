@@ -24,7 +24,7 @@ public class Feedback {
     private Integer id;
     
     @ManyToOne
-    @JoinColumn(name = "client_id")
+    @JoinColumn(name = "consumer_id")
     private Client client;
     
     @ManyToOne

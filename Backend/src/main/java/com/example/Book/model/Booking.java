@@ -29,11 +29,11 @@ public class Booking {
     private Integer bookingId;
 
     @ManyToOne
-    @JoinColumn(name = "client_id")
+    @JoinColumn(name = "consumer_id")
     private Client client;
 
     @ManyToOne
-    @JoinColumn(name = "service_id")
+    @JoinColumn(name = "provider_id")
     private Service service;
 
     @Column(name = "booking_date_time")

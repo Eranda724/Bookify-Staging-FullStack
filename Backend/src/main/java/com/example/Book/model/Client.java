@@ -23,8 +23,8 @@ public class Client {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "client_id")
-    private Integer clientId;
+    @Column(name = "consumer_id")
+    private Integer consumer_id;
 
     private String name;
     private String email;
@@ -49,11 +49,11 @@ public class Client {
     private List<Feedback> feedbacks;
 
     public Integer getId() {
-        return clientId;
+        return consumer_id;
     }
 
     public void setId(Integer id) {
-        this.clientId = id;
+        this.consumer_id = id;
     }
 
     public String getName() {

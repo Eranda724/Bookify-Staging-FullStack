@@ -28,8 +28,8 @@ public class Schedule {
     private Integer scheduleId;
 
     @ManyToOne
-    @JoinColumn(name = "client_id", nullable = false)
-    private Client client;
+    @JoinColumn(name = "consumer_id", nullable = false)
+    private Consumer consumer;
 
 
     @Column(name = "date_time")
@@ -38,8 +38,8 @@ public class Schedule {
 
 
     @ManyToOne
-    @JoinColumn(name = "service_id")
-    private Service service;
+    @JoinColumn(name = "provider_id")
+    private ServiceProvider provider;
 
 
 }

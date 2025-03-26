@@ -9,6 +9,7 @@ com\example\Book\config\SecurityConfig.class
 com\example\Book\model\Client.class
 com\example\Book\controller\RoleSelectController.class
 com\example\Book\model\Schedule.class
+com\example\Book\service\ConsumerService.class
 com\example\Book\model\Reminder.class
 com\example\Book\model\RoleSelect.class
 com\example\Book\config\CorsConfig.class
