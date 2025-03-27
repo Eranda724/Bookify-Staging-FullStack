@@ -4,6 +4,8 @@ import java.math.BigDecimal;
 import java.time.LocalTime;
 import java.util.List;
 
+import org.springframework.web.bind.annotation.CrossOrigin;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -13,16 +15,21 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.persistence.Transient;
 
+
+@CrossOrigin(origins = "http://localhost:3000")
 @Entity
 @Table(name = "service_providers")
 public class ServiceProvider {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long provider_id;
-    @Column(nullable = false, unique = true, length = 50)
+
+    @Column(unique = true, length = 50)
     private String username;
+
     @Column(nullable = false, unique = true, length = 50)
     private String email;
+    
     @Column(nullable = false, length = 64, unique = true)
     private String password;
     @Transient

@@ -2,6 +2,8 @@ package com.example.Book.model;
 
 import java.util.List;
 
+import org.springframework.web.bind.annotation.CrossOrigin;
+
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -12,6 +14,7 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 
 
+@CrossOrigin(origins = "http://localhost:3000")
 @Entity
 @Table(name = "consumers")
 public class Consumer {
@@ -19,7 +22,7 @@ public class Consumer {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long consumer_id;
 
-    @Column(nullable = false, unique = true, length = 50)
+    @Column(unique = true, length = 50)
     private String username;
 
     @Column(nullable = false, unique = true, length = 50)

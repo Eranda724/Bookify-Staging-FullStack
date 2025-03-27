@@ -9,10 +9,9 @@ const ServiceProviderLogin = () => {
   const navigate = useNavigate();
   const [error, setError] = useState("");
   const [formData, setFormData] = useState({
-    email: "",
+    username: "",
     password: "",
-    SId: "",
-    role: "SERVICE_PROVIDER", // Fixed role for service provider login
+    role: "SERVICE_PROVIDER",
   });
 
   const handleChange = (e) => {
@@ -23,9 +22,19 @@ const ServiceProviderLogin = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await loginUser(formData);
-      console.log("Login Successful:", response);
-      navigate("/service-provider/dashboard"); // Navigate to service provider dashboard
+      const response = await loginUser({
+        ...formData,
+        username: formData.username,
+      });
+
+      if (response.token) {
+        localStorage.setItem("token", response.token);
+        localStorage.setItem("userRole", "SERVICE_PROVIDER");
+        localStorage.setItem("username", formData.username);
+        navigate("/service-provider/dashboard");
+      } else {
+        setError("Login failed. Invalid response from server.");
+      }
     } catch (error) {
       console.error("Login Failed:", error);
       setError(error.message || "Login failed. Please check your credentials.");
@@ -55,12 +64,14 @@ const ServiceProviderLogin = () => {
               </div>
             )}
 
-            <label className="block text-gray-700 text-left">Email:</label>
+            <label className="block text-gray-700 text-left">
+              Email/Username:
+            </label>
             <input
-              type="email"
-              name="email"
-              placeholder="Email Address"
-              value={formData.email}
+              type="text"
+              name="username"
+              placeholder="Email or Username"
+              value={formData.username}
               onChange={handleChange}
               className="w-full p-2 border rounded mt-2"
               required
@@ -74,19 +85,6 @@ const ServiceProviderLogin = () => {
               name="password"
               placeholder="Password"
               value={formData.password}
-              onChange={handleChange}
-              className="w-full p-2 border rounded mt-2"
-              required
-            />
-
-            <label className="block text-gray-700 mt-4 text-left">
-              Service ID:
-            </label>
-            <input
-              type="text"
-              name="SId"
-              placeholder="Service ID"
-              value={formData.SId}
               onChange={handleChange}
               className="w-full p-2 border rounded mt-2"
               required

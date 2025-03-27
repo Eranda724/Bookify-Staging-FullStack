@@ -20,6 +20,7 @@ import AboutCategoryView from "./app/booking/AboutCategoryView";
 import DoctorCategoryView from "./app/booking/DoctorCategoryView";
 import AccountSettings from "./app/account/serviceProvider/AccountSettings";
 import AccountSettings1 from "./app/account/client/AccountSettings1";
+import ServiceProviderDashboard from "./app/account/serviceProvider/ServiceProviderDashboard";
 import "./App.css";
 
 function App() {
@@ -50,6 +51,10 @@ function App() {
           <Route path="/doctorcategoryview" element={<DoctorCategoryView />} />
           <Route path="/accountsettings" element={<AccountSettings />} />
           <Route path="/accountsettings1" element={<AccountSettings1 />} />
+          <Route
+            path="/service-provider/dashboard"
+            element={<ServiceProviderDashboard />}
+          />
         </Routes>
       </div>
     </Router>
