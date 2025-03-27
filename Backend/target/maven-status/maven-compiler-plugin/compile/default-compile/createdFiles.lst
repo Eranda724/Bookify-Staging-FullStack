@@ -6,7 +6,6 @@ com\example\Book\model\Consumer.class
 com\example\Book\controller\AuthController.class
 com\example\Book\config\CorsConfig$1.class
 com\example\Book\config\SecurityConfig.class
-com\example\Book\model\Client.class
 com\example\Book\controller\RoleSelectController.class
 com\example\Book\model\Schedule.class
 com\example\Book\service\ConsumerService.class
@@ -17,7 +16,6 @@ com\example\Book\config\JwtFilter.class
 com\example\Book\model\ServiceProvider.class
 com\example\Book\service\MyUserDetailsService.class
 com\example\Book\model\Booking.class
-com\example\Book\model\Service.class
 com\example\Book\service\UserService.class
 com\example\Book\repo\ConsumerRepository.class
 com\example\Book\model\Feedback.class

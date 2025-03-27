@@ -25,7 +25,7 @@ public class Feedback {
     
     @ManyToOne
     @JoinColumn(name = "consumer_id")
-    private Client client;
+    private Consumer client;
     
     @ManyToOne
     @JoinColumn(name = "booking_id")
