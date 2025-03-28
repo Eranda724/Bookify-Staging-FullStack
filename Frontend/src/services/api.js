@@ -99,41 +99,19 @@ export const registercustomer = async (formData) => {
 
 // Login endpoints
 export const loginUser = async (formData) => {
-  try {
-    const endpoint =
-      formData.role === "SERVICE_PROVIDER"
-        ? "auth/service-provider/login"
-        : "auth/consumer/login";
+  const response = await fetch("http://localhost:8081/auth/login", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(formData),
+  });
 
-    const response = await fetch(`${BASE_URL}${endpoint}`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        username: formData.username,
-        password: formData.password,
-        role: formData.role,
-      }),
-    });
-
-    const data = await handleResponse(response);
-
-    if (data.token) {
-      localStorage.setItem("token", data.token);
-      localStorage.setItem("userRole", formData.role);
-      localStorage.setItem("username", formData.username);
-
-      // Return the data along with the role for navigation
-      return {
-        ...data,
-        role: formData.role,
-      };
-    }
-    return data;
-  } catch (error) {
-    handleNetworkError(error);
+  if (!response.ok) {
+    throw new Error("Login failed. Please check your credentials.");
   }
+
+  return response.json();
 };
 
 // Logout function

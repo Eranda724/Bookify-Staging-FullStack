@@ -9,7 +9,7 @@ const ServiceProviderLogin = () => {
   const navigate = useNavigate();
   const [error, setError] = useState("");
   const [formData, setFormData] = useState({
-    username: "",
+    email: "",
     password: "",
     role: "SERVICE_PROVIDER",
   });
@@ -24,13 +24,13 @@ const ServiceProviderLogin = () => {
     try {
       const response = await loginUser({
         ...formData,
-        username: formData.username,
+        email: formData.email,
       });
 
       if (response.token) {
         localStorage.setItem("token", response.token);
         localStorage.setItem("userRole", "SERVICE_PROVIDER");
-        localStorage.setItem("username", formData.username);
+        localStorage.setItem("email", formData.email);
         navigate("/service-provider/dashboard");
       } else {
         setError("Login failed. Invalid response from server.");
@@ -64,14 +64,12 @@ const ServiceProviderLogin = () => {
               </div>
             )}
 
-            <label className="block text-gray-700 text-left">
-              Email/Username:
-            </label>
+            <label className="block text-gray-700 text-left">Email:</label>
             <input
               type="text"
-              name="username"
-              placeholder="Email or Username"
-              value={formData.username}
+              name="email"
+              placeholder="Email"
+              value={formData.email}
               onChange={handleChange}
               className="w-full p-2 border rounded mt-2"
               required

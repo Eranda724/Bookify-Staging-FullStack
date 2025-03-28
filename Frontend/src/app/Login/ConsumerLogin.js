@@ -24,7 +24,7 @@ const ConsumerLogin = () => {
     try {
       const response = await loginUser(formData);
       console.log("Login Successful:", response);
-      navigate("/consumer/dashboard"); // Navigate to consumer dashboard
+      navigate("/accountsettings1"); // Navigate to consumer dashboard
     } catch (error) {
       console.error("Login Failed:", error);
       setError(error.message || "Login failed. Please check your credentials.");

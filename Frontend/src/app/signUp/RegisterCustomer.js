@@ -45,7 +45,7 @@ const RegisterCustomer = () => {
     try {
       const response = await registercustomer(formData);
       console.log("Registration successful:", response);
-      navigate("/ConsumerLogin");
+      navigate("/Consumer/login");
     } catch (error) {
       console.error("Registration failed:", error);
       setError(error.message || "Registration failed. Please try again.");
@@ -70,7 +70,7 @@ const RegisterCustomer = () => {
             </h2>
             <p className="text-center text-gray-600 mb-2">
               Already have an account?{" "}
-              <Link to="/login" className="text-blue-500 font-medium">
+              <Link to="/Consumer/login" className="text-blue-500 font-medium">
                 Sign In
               </Link>
             </p>
