@@ -79,7 +79,7 @@ const ConsumerLogin = () => {
             />
 
             <div className="text-left mt-4">
-              <Link to="/forgot-password" className="hover:underline">
+              <Link to="/reset-password" className="hover:underline">
                 Forgot Password?
               </Link>
             </div>

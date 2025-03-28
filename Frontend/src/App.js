@@ -21,6 +21,8 @@ import DoctorCategoryView from "./app/booking/DoctorCategoryView";
 import AccountSettings from "./app/account/serviceProvider/AccountSettings";
 import AccountSettings1 from "./app/account/client/AccountSettings1";
 import ServiceProviderDashboard from "./app/account/serviceProvider/ServiceProviderDashboard";
+import ResetPasswordS from "./app/account/serviceProvider/ResetPassword";
+import ResetPasswordC from "./app/account/client/ResetPassword";
 import "./App.css";
 
 function App() {
@@ -55,6 +57,8 @@ function App() {
             path="/service-provider/dashboard"
             element={<ServiceProviderDashboard />}
           />
+          <Route path="/reset-passwordc" element={<ResetPasswordC />} />
+          <Route path="/reset-passwords" element={<ResetPasswordS />} />
         </Routes>
       </div>
     </Router>
