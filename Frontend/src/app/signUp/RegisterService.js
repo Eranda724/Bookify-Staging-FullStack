@@ -90,7 +90,10 @@ const RegisterService = () => {
             )}
             <p className="text-center text-gray-600 mb-2">
               Already have an account?{" "}
-              <Link to="/login" className="text-blue-500 font-medium">
+              <Link
+                to="/service-provider/login"
+                className="text-blue-500 font-medium"
+              >
                 Sign In
               </Link>
             </p>

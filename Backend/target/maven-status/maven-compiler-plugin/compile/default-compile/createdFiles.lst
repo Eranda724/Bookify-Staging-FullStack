@@ -21,3 +21,4 @@ com\example\Book\repo\ConsumerRepository.class
 com\example\Book\model\Feedback.class
 com\example\Book\model\RecurringAppointment.class
 com\example\Book\model\Notification.class
+com\example\Book\model\Services.class
