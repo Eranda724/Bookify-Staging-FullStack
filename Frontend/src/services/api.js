@@ -42,27 +42,30 @@ export const registerservice = async (formData) => {
     data: formData,
   });
 
-  const response = await fetch(`${BASE_URL}${endpoint}`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Accept: "application/json",
-      "Access-Control-Allow-Origin": "*",
-      "Access-Control-Allow-Methods": "POST, OPTIONS",
-      "Access-Control-Allow-Headers": "Content-Type, Authorization",
-    },
-    credentials: "include",
-    body: JSON.stringify({
-      username: formData.username,
-      email: formData.email,
-      password: formData.password,
-      confirmPassword: formData.confirmPassword,
-      category: formData.category,
-      termsAccepted: formData.termsAccepted,
-    }),
-  });
+  try {
+    const response = await fetch(`${BASE_URL}${endpoint}`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Methods": "POST, OPTIONS",
+        "Access-Control-Allow-Headers": "Content-Type, Authorization",
+      },
+      credentials: "include",
+      body: JSON.stringify({
+        username: formData.username,
+        email: formData.email,
+        password: formData.password,
+        confirmPassword: formData.password,
+        termsAccepted: formData.termsAccepted,
+      }),
+    });
 
-  return handleResponse(response);
+    return handleResponse(response);
+  } catch (error) {
+    return handleNetworkError(error);
+  }
 };
 
 export const registercustomer = async (formData) => {
@@ -74,171 +77,68 @@ export const registercustomer = async (formData) => {
     data: formData,
   });
 
-  const response = await fetch(`${BASE_URL}${endpoint}`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Accept: "application/json",
-      "Access-Control-Allow-Origin": "*",
-      "Access-Control-Allow-Methods": "POST, OPTIONS",
-      "Access-Control-Allow-Headers": "Content-Type, Authorization",
-    },
-    credentials: "include",
-    body: JSON.stringify({
-      username: formData.username,
-      email: formData.email,
-      password: formData.password,
-      confirmPassword: formData.confirmPassword,
-      role: "CONSUMER",
-      termsAccepted: formData.termsAccepted,
-    }),
-  });
-
-  return handleResponse(response);
-};
-
-// Login endpoints
-export const loginUser = async (formData) => {
-  const response = await fetch("http://localhost:8081/auth/login", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(formData),
-  });
-
-  if (!response.ok) {
-    throw new Error("Login failed. Please check your credentials.");
-  }
-
-  return response.json();
-};
-
-// Logout function
-export const logoutUser = () => {
-  localStorage.removeItem("token");
-  localStorage.removeItem("userRole");
-};
-
-// Password reset request
-export const requestPasswordReset = async (email) => {
-  const response = await fetch(`${BASE_URL}/forgot-password`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ email }),
-  });
-
-  if (!response.ok) {
-    const errorData = await response.json().catch(() => ({}));
-    throw new Error(errorData.message || "Password reset request failed");
-  }
-
-  return await response.json();
-};
-
-// Reset password with token
-export const resetPassword = async (token, newPassword) => {
-  const response = await fetch(`${BASE_URL}/reset-password`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ token, newPassword }),
-  });
-
-  if (!response.ok) {
-    const errorData = await response.json().catch(() => ({}));
-    throw new Error(errorData.message || "Password reset failed");
-  }
-
-  return await response.json();
-};
-
-// Get user profile
-export const getUserProfile = async () => {
   try {
-    const token = localStorage.getItem("token");
-    const userRole = localStorage.getItem("userRole");
-
-    if (!token) {
-      throw new Error("No authentication token found");
-    }
-
-    const endpoint =
-      userRole === "SERVICE_PROVIDER"
-        ? "/service-provider/profile"
-        : "/consumer/profile";
-
     const response = await fetch(`${BASE_URL}${endpoint}`, {
-      method: "GET",
+      method: "POST",
       headers: {
-        Authorization: `Bearer ${token}`,
         "Content-Type": "application/json",
+        Accept: "application/json",
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Methods": "POST, OPTIONS",
+        "Access-Control-Allow-Headers": "Content-Type, Authorization",
       },
+      credentials: "include",
+      body: JSON.stringify({
+        username: formData.username,
+        email: formData.email,
+        password: formData.password,
+        confirmPassword: formData.password,
+        role: "CONSUMER",
+        termsAccepted: formData.termsAccepted,
+      }),
     });
 
     return handleResponse(response);
   } catch (error) {
-    handleNetworkError(error);
+    return handleNetworkError(error);
   }
 };
 
-// Update user profile
-export const updateUserProfile = async (profileData) => {
-  const token = localStorage.getItem("token");
-  const userRole = localStorage.getItem("userRole");
+// Login endpoints
+export const loginUser = async (formData) => {
+  const endpoint = "auth/login";
 
-  if (!token) {
-    throw new Error("No authentication token found");
-  }
-
-  const endpoint =
-    userRole === "SERVICE_PROVIDER"
-      ? "/service-provider/profile"
-      : "/consumer/profile";
-
-  const response = await fetch(`${BASE_URL}${endpoint}`, {
-    method: "PUT",
-    headers: {
-      Authorization: `Bearer ${token}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(profileData),
+  // Add logging to debug the request
+  console.log("Login request:", {
+    url: `${BASE_URL}${endpoint}`,
+    data: formData,
   });
 
-  if (!response.ok) {
-    const errorData = await response.json().catch(() => ({}));
-    throw new Error(errorData.message || "Failed to update profile");
+  try {
+    const response = await fetch(`${BASE_URL}${endpoint}`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Methods": "POST, OPTIONS",
+        "Access-Control-Allow-Headers": "Content-Type, Authorization",
+      },
+      credentials: "include",
+      body: JSON.stringify(formData),
+    });
+
+    // Check for authentication failure specifically
+    if (response.status === 401 || response.status === 403) {
+      throw new Error(
+        "Incorrect credentials. Please check your email and password."
+      );
+    }
+
+    return handleResponse(response);
+  } catch (error) {
+    return handleNetworkError(error);
   }
-
-  return await response.json();
-};
-
-// Verify auth token
-export const verifyToken = async () => {
-  const token = localStorage.getItem("token");
-
-  if (!token) {
-    throw new Error("No authentication token found");
-  }
-
-  const response = await fetch(`${BASE_URL}/verify-token`, {
-    method: "GET",
-    headers: {
-      Authorization: `Bearer ${token}`,
-      "Content-Type": "application/json",
-    },
-  });
-
-  if (!response.ok) {
-    localStorage.removeItem("token");
-    localStorage.removeItem("userRole");
-    throw new Error("Invalid or expired token");
-  }
-
-  return await response.json();
 };
 
 // Helper function to check if user is authenticated
@@ -268,5 +168,152 @@ export const testConnection = async () => {
   } catch (error) {
     console.error("Backend connection test failed:", error);
     return false;
+  }
+};
+
+// Fetch service providers for consumer booking
+export const fetchServiceProviders = async () => {
+  const token = localStorage.getItem("token");
+  if (!token) {
+    throw new Error("Authentication required");
+  }
+
+  try {
+    // Updated endpoint to match backend convention
+    const response = await fetch(`${BASE_URL}api/service-providers/all`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+        Accept: "application/json",
+      },
+      credentials: "include",
+    });
+
+    if (!response.ok) {
+      if (response.status === 404) {
+        // If no providers found, return empty array instead of error
+        return [];
+      }
+      throw new Error(`Failed to fetch service providers (${response.status})`);
+    }
+
+    const data = await response.json();
+    return Array.isArray(data) ? data : [];
+  } catch (error) {
+    console.error("Error fetching service providers:", error);
+    throw error;
+  }
+};
+
+// Fetch specific service provider details
+export const fetchServiceProviderDetails = async (providerId) => {
+  const token = localStorage.getItem("token");
+  if (!token) {
+    throw new Error("Authentication required");
+  }
+
+  try {
+    const response = await fetch(
+      `${BASE_URL}api/service-providers/${providerId}`,
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+          Accept: "application/json",
+        },
+        credentials: "include",
+      }
+    );
+
+    if (!response.ok) {
+      if (response.status === 404) {
+        // Return empty object with default structure if provider not found
+        return {
+          name: "-",
+          username: "-",
+          specialty: "-",
+          qualification: "-",
+          contactNumber: "-",
+          workplace: "-",
+          workHours: { start: "09:00", end: "17:00" },
+          address: {
+            clinic: "-",
+            district: "-",
+            county: "-",
+          },
+        };
+      }
+      throw new Error(
+        `Failed to fetch service provider details (${response.status})`
+      );
+    }
+
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error("Error fetching service provider details:", error);
+    throw error;
+  }
+};
+
+// Create a booking appointment
+export const createBooking = async (bookingData) => {
+  const token = localStorage.getItem("token");
+  if (!token) {
+    throw new Error("Authentication required");
+  }
+
+  try {
+    const response = await fetch(`${BASE_URL}api/bookings`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(bookingData),
+    });
+
+    if (!response.ok) {
+      throw new Error("Failed to create booking");
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error("Error creating booking:", error);
+    throw error;
+  }
+};
+
+// Update service provider profile
+export const updateServiceProviderProfile = async (profileData) => {
+  const token = localStorage.getItem("token");
+
+  if (!token) {
+    throw new Error("Authentication required");
+  }
+
+  try {
+    const response = await fetch(`${BASE_URL}api/service-providers/profile`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+        Accept: "application/json",
+      },
+      credentials: "include",
+      body: JSON.stringify(profileData),
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`Failed to update profile: ${errorText}`);
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error("Error updating service provider profile:", error);
+    throw error;
   }
 };

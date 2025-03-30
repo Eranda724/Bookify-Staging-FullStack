@@ -15,7 +15,6 @@ const RegisterService = () => {
     password: "",
     confirmPassword: "",
     termsAccepted: false,
-    category: "",
   });
 
   const handleChange = (e) => {
@@ -148,25 +147,6 @@ const RegisterService = () => {
               className="w-full p-2 border rounded mb-2"
               required
             />
-            <label className="block text-gray-700 text-left mb-1">
-              Category:
-            </label>
-            <select
-              name="category"
-              value={formData.category}
-              onChange={handleChange}
-              className="w-full p-2 border rounded mb-2"
-              required
-            >
-              <option value="">Select a category</option>
-              <option value="DOCTOR">Doctor</option>
-              <option value="NURSE">Nurse</option>
-              <option value="PHYSIOTHERAPIST">Physiotherapist</option>
-              <option value="DENTIST">Dentist</option>
-              <option value="PHARMACIST">Pharmacist</option>
-              <option value="LAB_TECHNICIAN">Lab Technician</option>
-              <option value="OTHER">Other</option>
-            </select>
 
             <div className="flex items-center mt-2">
               <input

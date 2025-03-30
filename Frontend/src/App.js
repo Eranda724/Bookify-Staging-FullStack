@@ -1,10 +1,8 @@
 import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Home from "./app/Home/Home";
-import ConsumerLogin from "./app/Login/ConsumerLogin";
-import ServiceProviderLogin from "./app/Login/ServiceProviderLogin";
-import RegisterCustomer from "./app/signUp/RegisterCustomer";
-import RegisterService from "./app/signUp/RegisterService";
+import LoginForm from "./app/Login/LoginForm";
+import RegisterForm from "./app/signUp/RegisterForm";
 import SignUpCommon from "./app/signUp/SignUpCommon";
 import SignUp1 from "./app/signUp/SignUp1";
 import Account1 from "./app/account/Account1";
@@ -20,9 +18,6 @@ import AboutCategoryView from "./app/booking/AboutCategoryView";
 import DoctorCategoryView from "./app/booking/DoctorCategoryView";
 import AccountSettings from "./app/account/serviceProvider/AccountSettings";
 import AccountSettings1 from "./app/account/client/AccountSettings1";
-import ServiceProviderDashboard from "./app/account/serviceProvider/ServiceProviderDashboard";
-import ResetPasswordS from "./app/account/serviceProvider/ResetPassword";
-import ResetPasswordC from "./app/account/client/ResetPassword";
 import "./App.css";
 
 function App() {
@@ -31,13 +26,24 @@ function App() {
       <div className="App">
         <Routes>
           <Route path="/" element={<Home />} />
-          <Route path="/consumer/login" element={<ConsumerLogin />} />
+          <Route path="/login" element={<LoginForm />} />
+          <Route
+            path="/Consumer/login"
+            element={<LoginForm userType="consumer" />}
+          />
           <Route
             path="/service-provider/login"
-            element={<ServiceProviderLogin />}
+            element={<LoginForm userType="service" />}
           />
-          <Route path="/registercustomer" element={<RegisterCustomer />} />
-          <Route path="/registerservice" element={<RegisterService />} />
+          <Route
+            path="/reset-password"
+            element={<LoginForm userType="consumer" resetPassword={true} />}
+          />
+          <Route
+            path="/reset-passwords"
+            element={<LoginForm userType="service" resetPassword={true} />}
+          />
+          <Route path="/register" element={<RegisterForm />} />
           <Route path="/signupcommon" element={<SignUpCommon />} />
           <Route path="/signup1" element={<SignUp1 />} />
           <Route path="/account1" element={<Account1 />} />
@@ -53,12 +59,6 @@ function App() {
           <Route path="/doctorcategoryview" element={<DoctorCategoryView />} />
           <Route path="/accountsettings" element={<AccountSettings />} />
           <Route path="/accountsettings1" element={<AccountSettings1 />} />
-          <Route
-            path="/service-provider/dashboard"
-            element={<ServiceProviderDashboard />}
-          />
-          <Route path="/reset-passwordc" element={<ResetPasswordC />} />
-          <Route path="/reset-passwords" element={<ResetPasswordS />} />
         </Routes>
       </div>
     </Router>

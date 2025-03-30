@@ -73,7 +73,7 @@ const SignUpCommon = () => {
                   Consumer
                 </h2>
                 <p className="text-gray-700">Book your Service!</p>
-                <Link to="/RegisterCustomer">
+                <Link to="/register?type=consumer">
                   <Button className="bg-blue-500 hover:bg-blue-600 text-white">
                     Sign Up
                   </Button>
@@ -88,7 +88,7 @@ const SignUpCommon = () => {
                   Servicer
                 </h2>
                 <p className="text-gray-700">Add your Service!</p>
-                <Link to="/RegisterService">
+                <Link to="/register?type=service">
                   <Button className="bg-blue-500 hover:bg-blue-600 text-white">
                     Sign Up
                   </Button>
