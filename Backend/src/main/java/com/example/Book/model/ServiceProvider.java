@@ -1,7 +1,6 @@
 package com.example.Book.model;
 
 import java.math.BigDecimal;
-import java.time.LocalTime;
 import java.util.List;
 
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -36,12 +35,6 @@ public class ServiceProvider {
     private String category;
     private String description;
     private Integer duration;
-
-    @Column(name = "start_time")
-    private LocalTime startTime;
-
-    @Column(name = "end_time")
-    private LocalTime endTime;
 
     private BigDecimal price;
     private Boolean isActive;
@@ -80,10 +73,6 @@ public class ServiceProvider {
     public void setDuration(Integer duration) { this.duration = duration; }
     public Boolean getIsActive() { return isActive; }
     public void setIsActive(Boolean isActive) { this.isActive = isActive; }
-    public LocalTime getStartTime() { return startTime; }
-    public void setStartTime(LocalTime startTime) { this.startTime = startTime; }
-    public LocalTime getEndTime() { return endTime; }
-    public void setEndTime(LocalTime endTime) { this.endTime = endTime; }
     public List<Schedule> getSchedules() { return schedules; }
     public void setSchedules(List<Schedule> schedules) { this.schedules = schedules; }
     public List<Booking> getBookings() { return bookings; }
