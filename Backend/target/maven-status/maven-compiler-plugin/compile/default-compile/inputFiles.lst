@@ -2,7 +2,7 @@ C:\Users\erand\OneDrive - University of Jaffna\projects\Bookify-Staging\Backend\
 C:\Users\erand\OneDrive - University of Jaffna\projects\Bookify-Staging\Backend\src\main\java\com\example\Book\config\JwtFilter.java
 C:\Users\erand\OneDrive - University of Jaffna\projects\Bookify-Staging\Backend\src\main\java\com\example\Book\config\SecurityConfig.java
 C:\Users\erand\OneDrive - University of Jaffna\projects\Bookify-Staging\Backend\src\main\java\com\example\Book\controller\AuthController.java
-C:\Users\erand\OneDrive - University of Jaffna\projects\Bookify-Staging\Backend\src\main\java\com\example\Book\controller\RoleSelectController.java
+C:\Users\erand\OneDrive - University of Jaffna\projects\Bookify-Staging\Backend\src\main\java\com\example\Book\controller\ConsumerController.java
 C:\Users\erand\OneDrive - University of Jaffna\projects\Bookify-Staging\Backend\src\main\java\com\example\Book\model\Booking.java
 C:\Users\erand\OneDrive - University of Jaffna\projects\Bookify-Staging\Backend\src\main\java\com\example\Book\model\Consumer.java
 C:\Users\erand\OneDrive - University of Jaffna\projects\Bookify-Staging\Backend\src\main\java\com\example\Book\model\Feedback.java
