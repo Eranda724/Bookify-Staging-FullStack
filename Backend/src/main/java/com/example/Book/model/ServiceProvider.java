@@ -19,7 +19,7 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "service_providers")
+@Table(name = "service_provider")
 public class ServiceProvider {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -31,7 +31,7 @@ public class ServiceProvider {
     
     private String password;
     private String address;
-    private Integer contact;
+    private String contact;
 
     private Integer experience;
     private Boolean isActive;
