@@ -1,253 +1,385 @@
-import React, { useState } from 'react';
-const MyProfile = ({ userData, onUpdateUser }) => {
+import React, { useState } from "react";
+import { updateServiceProviderProfile } from "../../../services/api";
+import { toast } from "react-toastify";
+import { Pencil } from "lucide-react";
+
+const MyProfile = ({ userData, setUserData }) => {
   const [isEditing, setIsEditing] = useState(false);
-  const [formData, setFormData] = useState(userData);
+  const [editedData, setEditedData] = useState({ ...userData });
+  const [loading, setLoading] = useState(false);
+  const [profileImage, setProfileImage] = useState(null);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
+    setEditedData((prev) => ({
       ...prev,
-      [name]: value
+      [name]: value,
     }));
   };
 
-  const handleAddressChange = (e) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      address: {
-        ...prev.address,
-        [name]: value
-      }
-    }));
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setProfileImage(reader.result);
+      };
+      reader.readAsDataURL(file);
+    }
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    onUpdateUser(formData);
-    setIsEditing(false);
+    setLoading(true);
+
+    try {
+      const formData = new FormData();
+      Object.keys(editedData).forEach((key) => {
+        if (key === "address") {
+          formData.append(key, JSON.stringify(editedData[key]));
+        } else {
+          formData.append(key, editedData[key]);
+        }
+      });
+      if (profileImage) {
+        formData.append("profileImage", profileImage);
+      }
+
+      const response = await updateServiceProviderProfile(formData);
+      setUserData(editedData);
+      setIsEditing(false);
+      toast.success("Profile updated successfully!");
+    } catch (error) {
+      console.error("Error updating profile:", error);
+      toast.error(error.message || "Failed to update profile");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
-    <div className="bg-cyan-100 rounded-lg p-6">
-      <h2 className="text-xl font-semibold mb-4">My Profile</h2>
-      
-      <div className="bg-blue-50 rounded-lg p-6 mb-4">
-        <div className="flex items-start justify-between">
-          <div className="flex items-center">
-            <img 
-              src={userData.profileImage || '/api/placeholder/80/80'} 
-              alt="Profile" 
-              className="w-16 h-16 rounded-full object-cover mr-4" 
-            />
-            <div>
-              <p className="text-gray-500">Name: {userData.name}</p>
-              <p className="text-gray-500">Bio: {userData.bio}</p>
+    <div className="max-w-4xl mx-auto">
+      <div className="bg-gradient-to-r from-cyan-50 to-blue-50 rounded-lg shadow-lg overflow-hidden">
+        {/* Profile Header */}
+        <div className="p-6 relative">
+          <h2 className="text-2xl font-bold text-gray-800 mb-6">My Profile</h2>
+
+          <div className="flex items-start space-x-6">
+            <div className="relative">
+              <div className="w-24 h-24 rounded-full overflow-hidden bg-gray-200">
+                <img
+                  src={
+                    profileImage ||
+                    userData.profileImage ||
+                    "/default-avatar.png"
+                  }
+                  alt="Profile"
+                  className="w-full h-full object-cover"
+                />
+              </div>
+              {isEditing && (
+                <label className="absolute bottom-0 right-0 bg-blue-500 rounded-full p-2 cursor-pointer hover:bg-blue-600 transition">
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleImageChange}
+                    className="hidden"
+                  />
+                  <Pencil size={16} className="text-white" />
+                </label>
+              )}
+            </div>
+
+            <div className="flex-1">
+              <div className="flex justify-between items-start">
+                <div>
+                  <h3 className="text-xl font-semibold text-gray-800">
+                    {isEditing ? (
+                      <input
+                        type="text"
+                        name="name"
+                        value={editedData.name || ""}
+                        onChange={handleChange}
+                        className="border-b border-gray-300 focus:border-blue-500 bg-transparent px-1"
+                        placeholder="Your name"
+                      />
+                    ) : (
+                      userData.name || "Add your name"
+                    )}
+                  </h3>
+                  <div className="mt-2">
+                    {isEditing ? (
+                      <textarea
+                        name="bio"
+                        value={editedData.bio || ""}
+                        onChange={handleChange}
+                        className="w-full border-gray-300 rounded-md focus:border-blue-500 bg-transparent"
+                        placeholder="Write a short bio..."
+                        rows="2"
+                      />
+                    ) : (
+                      <p className="text-gray-600">
+                        {userData.bio || "Add a short bio"}
+                      </p>
+                    )}
+                  </div>
+                </div>
+
+                {!isEditing ? (
+                  <button
+                    onClick={() => setIsEditing(true)}
+                    className="flex items-center text-blue-500 hover:text-blue-600"
+                  >
+                    <Pencil size={16} className="mr-1" />
+                    Edit
+                  </button>
+                ) : (
+                  <div className="space-x-2">
+                    <button
+                      onClick={() => {
+                        setIsEditing(false);
+                        setEditedData({ ...userData });
+                      }}
+                      className="px-3 py-1 text-gray-600 hover:text-gray-700"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      onClick={handleSubmit}
+                      disabled={loading}
+                      className="px-3 py-1 bg-blue-500 text-white rounded-md hover:bg-blue-600 disabled:opacity-50"
+                    >
+                      {loading ? "Saving..." : "Save"}
+                    </button>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
-          <button 
-            className="text-blue-500 hover:text-blue-700"
-            onClick={() => setIsEditing(true)}
-          >
-            <span className="flex items-center">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-1" viewBox="0 0 20 20" fill="currentColor">
-                <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
-              </svg>
-              Edit
-            </span>
-          </button>
+        </div>
+
+        {/* Personnel Information */}
+        <div className="bg-white p-6">
+          <div className="flex justify-between items-center mb-4">
+            <h3 className="text-lg font-semibold text-gray-800">
+              Personnel Information
+            </h3>
+            {!isEditing && (
+              <button
+                onClick={() => setIsEditing(true)}
+                className="flex items-center text-blue-500 hover:text-blue-600"
+              >
+                <Pencil size={16} className="mr-1" />
+                Edit
+              </button>
+            )}
+          </div>
+
+          <div className="grid grid-cols-2 gap-6">
+            <div>
+              <label className="block text-sm font-medium text-gray-600 mb-1">
+                First Name
+              </label>
+              <input
+                type="text"
+                name="firstName"
+                value={
+                  isEditing
+                    ? editedData.firstName || ""
+                    : userData.firstName || ""
+                }
+                onChange={handleChange}
+                readOnly={!isEditing}
+                className={`w-full px-3 py-2 rounded-md ${
+                  isEditing
+                    ? "border-gray-300 focus:border-blue-500"
+                    : "bg-gray-50 border-transparent"
+                }`}
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-600 mb-1">
+                Last Name
+              </label>
+              <input
+                type="text"
+                name="lastName"
+                value={
+                  isEditing
+                    ? editedData.lastName || ""
+                    : userData.lastName || ""
+                }
+                onChange={handleChange}
+                readOnly={!isEditing}
+                className={`w-full px-3 py-2 rounded-md ${
+                  isEditing
+                    ? "border-gray-300 focus:border-blue-500"
+                    : "bg-gray-50 border-transparent"
+                }`}
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-600 mb-1">
+                E-mail
+              </label>
+              <input
+                type="email"
+                name="email"
+                value={
+                  isEditing ? editedData.email || "" : userData.email || ""
+                }
+                onChange={handleChange}
+                readOnly={!isEditing}
+                className={`w-full px-3 py-2 rounded-md ${
+                  isEditing
+                    ? "border-gray-300 focus:border-blue-500"
+                    : "bg-gray-50 border-transparent"
+                }`}
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-600 mb-1">
+                Tel No:
+              </label>
+              <input
+                type="tel"
+                name="phone"
+                value={
+                  isEditing ? editedData.phone || "" : userData.phone || ""
+                }
+                onChange={handleChange}
+                readOnly={!isEditing}
+                className={`w-full px-3 py-2 rounded-md ${
+                  isEditing
+                    ? "border-gray-300 focus:border-blue-500"
+                    : "bg-gray-50 border-transparent"
+                }`}
+              />
+            </div>
+          </div>
+
+          <div className="mt-4">
+            <label className="block text-sm font-medium text-gray-600 mb-1">
+              Bio
+            </label>
+            <textarea
+              name="bio"
+              value={isEditing ? editedData.bio || "" : userData.bio || ""}
+              onChange={handleChange}
+              readOnly={!isEditing}
+              rows="3"
+              className={`w-full px-3 py-2 rounded-md ${
+                isEditing
+                  ? "border-gray-300 focus:border-blue-500"
+                  : "bg-gray-50 border-transparent"
+              }`}
+            />
+          </div>
+        </div>
+
+        {/* Address Information */}
+        <div className="bg-gray-50 p-6">
+          <div className="flex justify-between items-center mb-4">
+            <h3 className="text-lg font-semibold text-gray-800">Address</h3>
+            {!isEditing && (
+              <button
+                onClick={() => setIsEditing(true)}
+                className="flex items-center text-blue-500 hover:text-blue-600"
+              >
+                <Pencil size={16} className="mr-1" />
+                Edit
+              </button>
+            )}
+          </div>
+
+          <div className="grid grid-cols-2 gap-6">
+            <div>
+              <label className="block text-sm font-medium text-gray-600 mb-1">
+                Country
+              </label>
+              <input
+                type="text"
+                name="country"
+                value={
+                  isEditing
+                    ? editedData.address?.country || ""
+                    : userData.address?.country || ""
+                }
+                onChange={handleChange}
+                readOnly={!isEditing}
+                className={`w-full px-3 py-2 rounded-md ${
+                  isEditing
+                    ? "border-gray-300 focus:border-blue-500"
+                    : "bg-gray-50 border-transparent"
+                }`}
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-600 mb-1">
+                District
+              </label>
+              <input
+                type="text"
+                name="district"
+                value={
+                  isEditing
+                    ? editedData.address?.district || ""
+                    : userData.address?.district || ""
+                }
+                onChange={handleChange}
+                readOnly={!isEditing}
+                className={`w-full px-3 py-2 rounded-md ${
+                  isEditing
+                    ? "border-gray-300 focus:border-blue-500"
+                    : "bg-gray-50 border-transparent"
+                }`}
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-600 mb-1">
+                City
+              </label>
+              <input
+                type="text"
+                name="city"
+                value={
+                  isEditing
+                    ? editedData.address?.city || ""
+                    : userData.address?.city || ""
+                }
+                onChange={handleChange}
+                readOnly={!isEditing}
+                className={`w-full px-3 py-2 rounded-md ${
+                  isEditing
+                    ? "border-gray-300 focus:border-blue-500"
+                    : "bg-gray-50 border-transparent"
+                }`}
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-600 mb-1">
+                Postal Code
+              </label>
+              <input
+                type="text"
+                name="postalCode"
+                value={
+                  isEditing
+                    ? editedData.address?.postalCode || ""
+                    : userData.address?.postalCode || ""
+                }
+                onChange={handleChange}
+                readOnly={!isEditing}
+                className={`w-full px-3 py-2 rounded-md ${
+                  isEditing
+                    ? "border-gray-300 focus:border-blue-500"
+                    : "bg-gray-50 border-transparent"
+                }`}
+              />
+            </div>
+          </div>
         </div>
       </div>
-      
-      <div className="bg-blue-50 rounded-lg p-6 mb-4">
-        <div className="flex justify-between items-center mb-4">
-          <h3 className="font-medium">Personnel Information</h3>
-          <button 
-            className="text-blue-500 hover:text-blue-700"
-            onClick={() => setIsEditing(true)}
-          >
-            <span className="flex items-center">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-1" viewBox="0 0 20 20" fill="currentColor">
-                <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
-              </svg>
-              Edit
-            </span>
-          </button>
-        </div>
-        
-        <div className="grid grid-cols-2 gap-6">
-          <div>
-            <p className="text-sm text-gray-500 mb-1">First Name</p>
-            {isEditing ? (
-              <input 
-                type="text" 
-                name="firstName" 
-                value={formData.firstName} 
-                onChange={handleChange}
-                className="w-full border rounded-md p-2"
-              />
-            ) : (
-              <p className="font-medium">{userData.firstName}</p>
-            )}
-          </div>
-          
-          <div>
-            <p className="text-sm text-gray-500 mb-1">Last Name</p>
-            {isEditing ? (
-              <input 
-                type="text" 
-                name="lastName" 
-                value={formData.lastName} 
-                onChange={handleChange}
-                className="w-full border rounded-md p-2"
-              />
-            ) : (
-              <p className="font-medium">{userData.lastName}</p>
-            )}
-          </div>
-          
-          <div>
-            <p className="text-sm text-gray-500 mb-1">E-mail</p>
-            {isEditing ? (
-              <input 
-                type="email" 
-                name="email" 
-                value={formData.email} 
-                onChange={handleChange}
-                className="w-full border rounded-md p-2"
-              />
-            ) : (
-              <p className="font-medium">{userData.email}</p>
-            )}
-          </div>
-          
-          <div>
-            <p className="text-sm text-gray-500 mb-1">Tel No:</p>
-            {isEditing ? (
-              <input 
-                type="text" 
-                name="phone" 
-                value={formData.phone} 
-                onChange={handleChange}
-                className="w-full border rounded-md p-2"
-              />
-            ) : (
-              <p className="font-medium">{userData.phone}</p>
-            )}
-          </div>
-          
-          <div className="col-span-2">
-            <p className="text-sm text-gray-500 mb-1">Occupation</p>
-            {isEditing ? (
-              <input 
-                type="text" 
-                name="occupation" 
-                value={formData.occupation} 
-                onChange={handleChange}
-                className="w-full border rounded-md p-2"
-              />
-            ) : (
-              <p className="font-medium">{userData.occupation}</p>
-            )}
-          </div>
-        </div>
-      </div>
-      
-      <div className="bg-blue-50 rounded-lg p-6">
-        <div className="flex justify-between items-center mb-4">
-          <h3 className="font-medium">Address</h3>
-          <button 
-            className="text-blue-500 hover:text-blue-700"
-            onClick={() => setIsEditing(true)}
-          >
-            <span className="flex items-center">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-1" viewBox="0 0 20 20" fill="currentColor">
-                <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
-              </svg>
-              Edit
-            </span>
-          </button>
-        </div>
-        
-        <div className="grid grid-cols-2 gap-6">
-          <div>
-            <p className="text-sm text-gray-500 mb-1">Country</p>
-            {isEditing ? (
-              <input 
-                type="text" 
-                name="country" 
-                value={formData.address.country} 
-                onChange={handleAddressChange}
-                className="w-full border rounded-md p-2"
-              />
-            ) : (
-              <p className="font-medium">{userData.address.country}</p>
-            )}
-          </div>
-          
-          <div>
-            <p className="text-sm text-gray-500 mb-1">State/Province</p>
-            {isEditing ? (
-              <input 
-                type="text" 
-                name="state" 
-                value={formData.address.state} 
-                onChange={handleAddressChange}
-                className="w-full border rounded-md p-2"
-              />
-            ) : (
-              <p className="font-medium">{userData.address.state}</p>
-            )}
-          </div>
-          
-          <div>
-            <p className="text-sm text-gray-500 mb-1">City</p>
-            {isEditing ? (
-              <input 
-                type="text" 
-                name="city" 
-                value={formData.address.city} 
-                onChange={handleAddressChange}
-                className="w-full border rounded-md p-2"
-              />
-            ) : (
-              <p className="font-medium">{userData.address.city}</p>
-            )}
-          </div>
-          
-          <div>
-            <p className="text-sm text-gray-500 mb-1">Postal/Zip Code</p>
-            {isEditing ? (
-              <input 
-                type="text" 
-                name="zipCode" 
-                value={formData.address.zipCode} 
-                onChange={handleAddressChange}
-                className="w-full border rounded-md p-2"
-              />
-            ) : (
-              <p className="font-medium">{userData.address.zipCode}</p>
-            )}
-          </div>
-        </div>
-      </div>
-      
-      {isEditing && (
-        <div className="flex justify-end mt-4">
-          <button 
-            onClick={() => setIsEditing(false)}
-            className="bg-gray-300 text-gray-700 py-2 px-4 rounded-md mr-2 hover:bg-gray-400"
-          >
-            Cancel
-          </button>
-          <button 
-            onClick={handleSubmit}
-            className="bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600"
-          >
-            Save Changes
-          </button>
-        </div>
-      )}
     </div>
   );
 };

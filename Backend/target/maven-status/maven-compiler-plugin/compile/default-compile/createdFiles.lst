@@ -18,6 +18,7 @@ com\example\Book\exception\GlobalExceptionHandler.class
 com\example\Book\dto\BookingDTO.class
 com\example\Book\service\NotificationService.class
 com\example\Book\dto\ScheduleDTO.class
+com\example\Book\controller\UserController.class
 com\example\Book\model\Schedule.class
 com\example\Book\service\ReminderService.class
 com\example\Book\service\FeedbackService.class

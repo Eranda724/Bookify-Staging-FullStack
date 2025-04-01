@@ -151,24 +151,29 @@ export const loginUser = async (formData) => {
     }
 
     const data = await handleResponse(response);
+    console.log("Login response data:", data);
 
     // Store the token WITHOUT the Bearer prefix
     if (data.token) {
       // Remove 'Bearer ' prefix if it exists
       const token = data.token.replace("Bearer ", "");
       localStorage.setItem("token", token);
+      console.log("Token stored in localStorage:", token);
 
       // If user info is included in the response, store it
       if (data.user) {
         localStorage.setItem("userInfo", JSON.stringify(data.user));
+        console.log("User info stored in localStorage:", data.user);
       }
 
-      console.log("Login successful, stored token and user info:", {
-        token: token,
-        user: data.user,
-      });
+      // Store user role
+      const userRole =
+        formData.role === "consumers" ? "consumer" : "service-provider";
+      localStorage.setItem("userRole", userRole);
+      console.log("User role stored in localStorage:", userRole);
     } else {
       console.error("No token received in login response");
+      throw new Error("Login failed: No token received");
     }
 
     return data;
@@ -470,6 +475,71 @@ export const fetchUserProfile = async () => {
     return data;
   } catch (error) {
     console.error("Error fetching user profile:", error);
+    throw error;
+  }
+};
+
+// Fetch service provider profile
+export const fetchServiceProviderProfile = async () => {
+  const token = localStorage.getItem("token");
+  if (!token) {
+    console.error("No token found in localStorage");
+    throw new Error("Authentication required");
+  }
+
+  try {
+    // Ensure token doesn't already have Bearer prefix
+    const authToken = token.startsWith("Bearer ") ? token : `Bearer ${token}`;
+    console.log("Fetching service provider profile with token:", authToken);
+
+    const response = await fetch(`${BASE_URL}api/service-providers/profile`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: authToken,
+        Accept: "application/json",
+      },
+      credentials: "include",
+    });
+
+    console.log("Profile response status:", response.status);
+    console.log(
+      "Profile response headers:",
+      Object.fromEntries(response.headers.entries())
+    );
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error("Profile fetch error:", {
+        status: response.status,
+        statusText: response.statusText,
+        body: errorText,
+        headers: Object.fromEntries(response.headers.entries()),
+      });
+
+      // If unauthorized, clear token and userInfo
+      if (response.status === 401 || response.status === 403) {
+        localStorage.removeItem("token");
+        localStorage.removeItem("userInfo");
+        throw new Error("Session expired. Please login again.");
+      }
+
+      throw new Error(
+        `Failed to fetch profile (${response.status}): ${errorText}`
+      );
+    }
+
+    const data = await response.json();
+    console.log("Profile data received:", data);
+
+    // Update userInfo in localStorage with latest data
+    if (data) {
+      localStorage.setItem("userInfo", JSON.stringify(data));
+    }
+
+    return data;
+  } catch (error) {
+    console.error("Error fetching service provider profile:", error);
     throw error;
   }
 };

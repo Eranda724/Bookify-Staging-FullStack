@@ -149,13 +149,14 @@ const LoginForm = ({ userType = "consumer", resetPassword = false }) => {
       const loginData = {
         email: formData.email,
         password: formData.password,
-        role: userType === "consumer" ? "consumers" : "service_providers", // Updated role names", // Updated role names
+        role: userType === "consumer" ? "consumers" : "service_providers",
       };
 
+      console.log("Attempting login with data:", loginData);
       const response = await loginUser(loginData);
 
       if (response.token) {
-        // Store user info with consistent role namingnaming
+        // Store user info with consistent role naming
         localStorage.setItem("token", response.token);
         localStorage.setItem(
           "userRole",
@@ -179,7 +180,15 @@ const LoginForm = ({ userType = "consumer", resetPassword = false }) => {
         }
 
         toast.success("Login successful!");
-        navigate(userType === "consumer" ? "/" : "/accountsettings");
+
+        // Add a small delay before navigation to ensure localStorage is updated
+        setTimeout(() => {
+          if (userType === "consumer") {
+            navigate("/");
+          } else {
+            navigate("/accountsettings");
+          }
+        }, 100);
       } else if (response.error) {
         toast.error(
           response.error || "Login failed. Please check your credentials."
