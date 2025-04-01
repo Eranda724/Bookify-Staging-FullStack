@@ -7,6 +7,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -65,6 +67,107 @@ public class ServiceProviderController {
             return ResponseEntity.status(404).body("Service provider not found");
         } catch (Exception e) {
             System.err.println("Error in getServiceProviderProfile: " + e.getMessage());
+            e.printStackTrace();
+            return ResponseEntity.status(500).body("Internal server error: " + e.getMessage());
+        }
+    }
+
+    @PutMapping("/profile")
+    public ResponseEntity<?> updateServiceProviderProfile(
+            @RequestHeader("Authorization") String token,
+            @RequestBody Map<String, Object> profileData) {
+        try {
+            System.out.println("Received profile update request with data: " + profileData);
+            
+            if (token == null || token.isEmpty()) {
+                System.out.println("No authorization token provided");
+                return ResponseEntity.status(401).body("No authorization token provided");
+            }
+
+            // Remove "Bearer " prefix if present
+            String actualToken = token.startsWith("Bearer ") ? token.substring(7) : token;
+            System.out.println("Processing token: " + actualToken.substring(0, Math.min(actualToken.length(), 10)) + "...");
+            
+            // Extract email from token
+            String userEmail = jwtService.extractUserName(actualToken);
+            System.out.println("Extracted email from token: " + userEmail);
+            
+            if (userEmail == null || userEmail.isEmpty()) {
+                System.out.println("Invalid token: Could not extract email");
+                return ResponseEntity.status(401).body("Invalid token: Could not extract email");
+            }
+
+            // Find service provider by email
+            Optional<ServiceProvider> providerOpt = serviceProviderRepository.findByEmail(userEmail);
+            if (!providerOpt.isPresent()) {
+                System.out.println("Service provider not found for email: " + userEmail);
+                return ResponseEntity.status(404).body("Service provider not found");
+            }
+
+            ServiceProvider provider = providerOpt.get();
+            System.out.println("Found provider with ID: " + provider.getProvider_id());
+
+            // Update fields if they exist in the request
+            try {
+                if (profileData.containsKey("username")) {
+                    provider.setUsername((String) profileData.get("username"));
+                }
+                if (profileData.containsKey("address")) {
+                    provider.setAddress((String) profileData.get("address"));
+                }
+                if (profileData.containsKey("contact")) {
+                    provider.setContact((String) profileData.get("contact"));
+                }
+                if (profileData.containsKey("experience")) {
+                    Object expObj = profileData.get("experience");
+                    if (expObj != null) {
+                        if (expObj instanceof Integer) {
+                            provider.setExperience((Integer) expObj);
+                        } else {
+                            try {
+                                provider.setExperience(Integer.parseInt(expObj.toString()));
+                            } catch (NumberFormatException e) {
+                                System.out.println("Invalid experience value: " + expObj);
+                                provider.setExperience(0);
+                            }
+                        }
+                    }
+                }
+                if (profileData.containsKey("isActive")) {
+                    Object activeObj = profileData.get("isActive");
+                    if (activeObj != null) {
+                        if (activeObj instanceof Boolean) {
+                            provider.setIsActive((Boolean) activeObj);
+                        } else {
+                            provider.setIsActive(Boolean.parseBoolean(activeObj.toString()));
+                        }
+                    }
+                }
+
+                // Save the updated provider
+                System.out.println("Attempting to save updated provider data");
+                ServiceProvider updatedProvider = serviceProviderRepository.save(provider);
+                System.out.println("Successfully saved provider data");
+
+                // Return the updated profile
+                Map<String, Object> response = Map.of(
+                    "username", updatedProvider.getUsername() != null ? updatedProvider.getUsername() : "",
+                    "email", updatedProvider.getEmail() != null ? updatedProvider.getEmail() : "",
+                    "address", updatedProvider.getAddress() != null ? updatedProvider.getAddress() : "",
+                    "contact", updatedProvider.getContact() != null ? updatedProvider.getContact() : "",
+                    "experience", updatedProvider.getExperience() != null ? updatedProvider.getExperience() : 0,
+                    "isActive", updatedProvider.getIsActive() != null ? updatedProvider.getIsActive() : false
+                );
+
+                System.out.println("Returning updated profile: " + response);
+                return ResponseEntity.ok(response);
+            } catch (Exception e) {
+                System.err.println("Error updating provider fields: " + e.getMessage());
+                e.printStackTrace();
+                return ResponseEntity.status(400).body("Error updating provider fields: " + e.getMessage());
+            }
+        } catch (Exception e) {
+            System.err.println("Error in updateServiceProviderProfile: " + e.getMessage());
             e.printStackTrace();
             return ResponseEntity.status(500).body("Internal server error: " + e.getMessage());
         }

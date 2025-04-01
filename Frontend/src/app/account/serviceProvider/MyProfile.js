@@ -33,25 +33,67 @@ const MyProfile = ({ userData, setUserData }) => {
     setLoading(true);
 
     try {
+      console.log("Current userData:", userData);
+      console.log("Edited data:", editedData);
+
       const formData = new FormData();
-      Object.keys(editedData).forEach((key) => {
-        if (key === "address") {
-          formData.append(key, JSON.stringify(editedData[key]));
-        } else {
-          formData.append(key, editedData[key]);
+
+      // Add all the profile fields with proper type handling
+      const dataToUpdate = {
+        username: editedData.username || userData.username || "",
+        email: editedData.email || userData.email || "",
+        contact: editedData.phone || userData.contact || "",
+        address: editedData.address || userData.address || "",
+        experience: parseInt(
+          editedData.experience || userData.experience || "0"
+        ),
+        isActive: Boolean(editedData.isActive ?? userData.isActive ?? false),
+      };
+
+      console.log("Preparing to update with data:", dataToUpdate);
+
+      // Add each field to FormData
+      Object.entries(dataToUpdate).forEach(([key, value]) => {
+        if (value !== undefined && value !== null) {
+          if (typeof value === "object") {
+            formData.append(key, JSON.stringify(value));
+          } else {
+            formData.append(key, value.toString());
+          }
         }
       });
+
+      // Add profile image if changed
       if (profileImage) {
         formData.append("profileImage", profileImage);
       }
 
+      console.log("Submitting form data...");
       const response = await updateServiceProviderProfile(formData);
-      setUserData(editedData);
+      console.log("Update response:", response);
+
+      // Update the local state with the response data
+      setUserData((prev) => {
+        const newData = {
+          ...prev,
+          ...response,
+          // Preserve any fields that might not be returned by the API
+          profileImage: profileImage || prev.profileImage,
+        };
+        console.log("Updating user data to:", newData);
+        return newData;
+      });
+
       setIsEditing(false);
       toast.success("Profile updated successfully!");
     } catch (error) {
       console.error("Error updating profile:", error);
-      toast.error(error.message || "Failed to update profile");
+      // Show a more user-friendly error message
+      toast.error(
+        error.message && error.message.includes("Failed to fetch")
+          ? "Unable to connect to the server. Please try again later."
+          : error.message || "Failed to update profile"
+      );
     } finally {
       setLoading(false);
     }

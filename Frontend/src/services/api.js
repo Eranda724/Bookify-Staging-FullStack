@@ -391,6 +391,30 @@ export const updateServiceProviderProfile = async (profileData) => {
   }
 
   try {
+    // Convert FormData to JSON if it's a FormData object
+    let dataToSend = profileData;
+    if (profileData instanceof FormData) {
+      dataToSend = {};
+      for (let [key, value] of profileData.entries()) {
+        console.log(`Processing form field: ${key} = ${value}`);
+        if (key === "address") {
+          try {
+            dataToSend[key] = JSON.parse(value);
+          } catch (e) {
+            dataToSend[key] = value;
+          }
+        } else if (key === "experience") {
+          dataToSend[key] = parseInt(value) || 0;
+        } else if (key === "isActive") {
+          dataToSend[key] = value === "true";
+        } else {
+          dataToSend[key] = value;
+        }
+      }
+    }
+
+    console.log("Sending profile update with data:", dataToSend);
+
     const response = await fetch(`${BASE_URL}api/service-providers/profile`, {
       method: "PUT",
       headers: {
@@ -399,15 +423,38 @@ export const updateServiceProviderProfile = async (profileData) => {
         Accept: "application/json",
       },
       credentials: "include",
-      body: JSON.stringify(profileData),
+      body: JSON.stringify(dataToSend),
     });
+
+    console.log("Profile update response status:", response.status);
 
     if (!response.ok) {
       const errorText = await response.text();
-      throw new Error(`Failed to update profile: ${errorText}`);
+      console.error("Profile update error response:", errorText);
+
+      // Try to parse error message if it's JSON
+      try {
+        const errorJson = JSON.parse(errorText);
+        throw new Error(errorJson.message || errorText);
+      } catch (e) {
+        // If parsing fails, throw the raw error text
+        throw new Error(errorText || "Failed to update profile");
+      }
     }
 
-    return await response.json();
+    const updatedData = await response.json();
+    console.log("Profile update success response:", updatedData);
+
+    // Update local storage with new data
+    const userInfo = JSON.parse(localStorage.getItem("userInfo") || "{}");
+    const newUserInfo = {
+      ...userInfo,
+      ...updatedData,
+    };
+    console.log("Updating localStorage with:", newUserInfo);
+    localStorage.setItem("userInfo", JSON.stringify(newUserInfo));
+
+    return updatedData;
   } catch (error) {
     console.error("Error updating service provider profile:", error);
     throw error;
