@@ -2,8 +2,15 @@ export const BASE_URL = "http://localhost:8081/";
 
 // Helper function to handle API responses
 const handleResponse = async (response) => {
+  const contentType = response.headers.get("content-type");
   if (!response.ok) {
     const errorText = await response.text();
+    console.error("API Error Response:", {
+      status: response.status,
+      statusText: response.statusText,
+      body: errorText,
+      headers: Object.fromEntries(response.headers.entries()),
+    });
     try {
       const errorJson = JSON.parse(errorText);
       throw new Error(errorJson.message || "An error occurred");
@@ -12,15 +19,25 @@ const handleResponse = async (response) => {
     }
   }
 
-  try {
-    return await response.json();
-  } catch (e) {
-    return { success: true };
+  if (contentType && contentType.includes("application/json")) {
+    try {
+      const jsonData = await response.json();
+      console.log("API Success Response:", jsonData);
+      return jsonData;
+    } catch (e) {
+      console.error("JSON Parse Error:", e);
+      return { success: true };
+    }
+  } else {
+    const textData = await response.text();
+    console.log("API Text Response:", textData);
+    return { success: true, data: textData };
   }
 };
 
 // Helper function to handle network errors
 const handleNetworkError = (error) => {
+  console.error("Network Error:", error);
   if (!window.navigator.onLine) {
     throw new Error("No internet connection. Please check your network.");
   }
@@ -108,7 +125,6 @@ export const registercustomer = async (formData) => {
 export const loginUser = async (formData) => {
   const endpoint = "auth/login";
 
-  // Add logging to debug the request
   console.log("Login request:", {
     url: `${BASE_URL}${endpoint}`,
     data: formData,
@@ -128,16 +144,91 @@ export const loginUser = async (formData) => {
       body: JSON.stringify(formData),
     });
 
-    // Check for authentication failure specifically
     if (response.status === 401 || response.status === 403) {
       throw new Error(
         "Incorrect credentials. Please check your email and password."
       );
     }
 
-    return handleResponse(response);
+    const data = await handleResponse(response);
+
+    // Store the token WITHOUT the Bearer prefix
+    if (data.token) {
+      // Remove 'Bearer ' prefix if it exists
+      const token = data.token.replace("Bearer ", "");
+      localStorage.setItem("token", token);
+
+      // If user info is included in the response, store it
+      if (data.user) {
+        localStorage.setItem("userInfo", JSON.stringify(data.user));
+      }
+
+      console.log("Login successful, stored token and user info:", {
+        token: token,
+        user: data.user,
+      });
+    } else {
+      console.error("No token received in login response");
+    }
+
+    return data;
   } catch (error) {
+    console.error("Login error:", error);
     return handleNetworkError(error);
+  }
+};
+
+export const loginWithGoogle = async () => {
+  try {
+    // Replace with your actual Google OAuth endpoint
+    const response = await fetch(`${BASE_URL}/auth/google`, {
+      method: "GET",
+      credentials: "include",
+    });
+
+    if (!response.ok) {
+      throw new Error("Google login failed");
+    }
+
+    return await response.json();
+  } catch (error) {
+    throw new Error(error.message);
+  }
+};
+
+export const loginWithGithub = async () => {
+  try {
+    // Replace with your actual GitHub OAuth endpoint
+    const response = await fetch(`${BASE_URL}/auth/github`, {
+      method: "GET",
+      credentials: "include",
+    });
+
+    if (!response.ok) {
+      throw new Error("GitHub login failed");
+    }
+
+    return await response.json();
+  } catch (error) {
+    throw new Error(error.message);
+  }
+};
+
+export const loginWithFacebook = async () => {
+  try {
+    // Replace with your actual Facebook OAuth endpoint
+    const response = await fetch(`${BASE_URL}/auth/facebook`, {
+      method: "GET",
+      credentials: "include",
+    });
+
+    if (!response.ok) {
+      throw new Error("Facebook login failed");
+    }
+
+    return await response.json();
+  } catch (error) {
+    throw new Error(error.message);
   }
 };
 
@@ -314,6 +405,71 @@ export const updateServiceProviderProfile = async (profileData) => {
     return await response.json();
   } catch (error) {
     console.error("Error updating service provider profile:", error);
+    throw error;
+  }
+};
+
+// Fetch user profile data
+export const fetchUserProfile = async () => {
+  const token = localStorage.getItem("token");
+  if (!token) {
+    console.error("No token found in localStorage");
+    throw new Error("Authentication required");
+  }
+
+  try {
+    // Ensure token doesn't already have Bearer prefix
+    const authToken = token.startsWith("Bearer ") ? token : `Bearer ${token}`;
+    console.log("Fetching user profile with token:", authToken);
+
+    const response = await fetch(`${BASE_URL}api/users/profile`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: authToken,
+        Accept: "application/json",
+      },
+      credentials: "include",
+    });
+
+    console.log("Profile response status:", response.status);
+    console.log(
+      "Profile response headers:",
+      Object.fromEntries(response.headers.entries())
+    );
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error("Profile fetch error:", {
+        status: response.status,
+        statusText: response.statusText,
+        body: errorText,
+        headers: Object.fromEntries(response.headers.entries()),
+      });
+
+      // If unauthorized, clear token and userInfo
+      if (response.status === 401 || response.status === 403) {
+        localStorage.removeItem("token");
+        localStorage.removeItem("userInfo");
+        throw new Error("Session expired. Please login again.");
+      }
+
+      throw new Error(
+        `Failed to fetch user profile (${response.status}): ${errorText}`
+      );
+    }
+
+    const data = await response.json();
+    console.log("Profile data received:", data);
+
+    // Update userInfo in localStorage with latest data
+    if (data) {
+      localStorage.setItem("userInfo", JSON.stringify(data));
+    }
+
+    return data;
+  } catch (error) {
+    console.error("Error fetching user profile:", error);
     throw error;
   }
 };

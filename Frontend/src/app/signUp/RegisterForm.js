@@ -8,6 +8,7 @@ import {
   registerservice,
   testConnection,
 } from "../../services/api";
+import image2 from "../../images/Frame 1321314484.png";
 
 const RegisterForm = () => {
   const navigate = useNavigate();
@@ -93,11 +94,27 @@ const RegisterForm = () => {
         // Make API call to register consumer
         response = await registercustomer(registrationData);
         console.log("Consumer registration successful:", response);
+
+        // Store user info in localStorage
+        const userInfo = {
+          username: formData.username,
+          email: formData.email,
+        };
+        localStorage.setItem("userInfo", JSON.stringify(userInfo));
+
         navigate("/Consumer/login");
       } else {
         // Make API call to register service provider
         response = await registerservice(registrationData);
         console.log("Service provider registration successful:", response);
+
+        // Store user info in localStorage
+        const userInfo = {
+          username: formData.username,
+          email: formData.email,
+        };
+        localStorage.setItem("userInfo", JSON.stringify(userInfo));
+
         navigate("/service-provider/login");
       }
     } catch (error) {
@@ -122,7 +139,7 @@ const RegisterForm = () => {
           style={{ backgroundImage: `url(${image1})` }}
         ></div>
         <div className="w-full md:w-1/2 p-4 flex flex-col items-center">
-          <img src="/as.png" alt="Logo" className="w-24 mb-2 p-4" />
+          <img src={image2} alt="Logo" className="w-24 mb-2 p-4" />
           <form
             onSubmit={handleSubmit}
             className="w-full max-w-sm bg-[#B8EEFB] p-2 rounded-lg shadow-md"

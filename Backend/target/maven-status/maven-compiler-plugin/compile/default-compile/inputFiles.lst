@@ -12,6 +12,7 @@ C:\Users\erand\OneDrive - University of Jaffna\projects\Bookify-Staging\Backend\
 C:\Users\erand\OneDrive - University of Jaffna\projects\Bookify-Staging\Backend\src\main\java\com\example\Book\dto\BookingDTO.java
 C:\Users\erand\OneDrive - University of Jaffna\projects\Bookify-Staging\Backend\src\main\java\com\example\Book\model\Consumer.java
 C:\Users\erand\OneDrive - University of Jaffna\projects\Bookify-Staging\Backend\src\main\java\com\example\Book\service\MyUserDetailsService.java
+C:\Users\erand\OneDrive - University of Jaffna\projects\Bookify-Staging\Backend\src\main\java\com\example\Book\controller\UserController.java
 C:\Users\erand\OneDrive - University of Jaffna\projects\Bookify-Staging\Backend\src\main\java\com\example\Book\service\ReminderScheduler.java
 C:\Users\erand\OneDrive - University of Jaffna\projects\Bookify-Staging\Backend\src\main\java\com\example\Book\dto\ScheduleDTO.java
 C:\Users\erand\OneDrive - University of Jaffna\projects\Bookify-Staging\Backend\src\main\java\com\example\Book\repo\ScheduleRepository.java
@@ -30,7 +31,6 @@ C:\Users\erand\OneDrive - University of Jaffna\projects\Bookify-Staging\Backend\
 C:\Users\erand\OneDrive - University of Jaffna\projects\Bookify-Staging\Backend\src\main\java\com\example\Book\repo\ServiceProviderRepository.java
 C:\Users\erand\OneDrive - University of Jaffna\projects\Bookify-Staging\Backend\src\main\java\com\example\Book\repo\BookingRepository.java
 C:\Users\erand\OneDrive - University of Jaffna\projects\Bookify-Staging\Backend\src\main\java\com\example\Book\dto\FeedbackDTO.java
-C:\Users\erand\OneDrive - University of Jaffna\projects\Bookify-Staging\Backend\src\main\java\com\example\Book\controller\ConsumerController.java
 C:\Users\erand\OneDrive - University of Jaffna\projects\Bookify-Staging\Backend\src\main\java\com\example\Book\service\ConsumerService.java
 C:\Users\erand\OneDrive - University of Jaffna\projects\Bookify-Staging\Backend\src\main\java\com\example\Book\service\NotificationService.java
 C:\Users\erand\OneDrive - University of Jaffna\projects\Bookify-Staging\Backend\src\main\java\com\example\Book\service\JWTService.java

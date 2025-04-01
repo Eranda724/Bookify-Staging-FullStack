@@ -42,6 +42,9 @@ public class BookingService {
     @Autowired
     private ConsumerRepository consumerRepository;
 
+    public List<Booking> getAllBookings() {
+        return bookingRepository.findAll();
+    }
 
     public List<ServiceProviderDTO> getAllServiceProvidersWithServices() {
         // Get all service providers

@@ -31,7 +31,6 @@ com\example\Book\config\JwtFilter.class
 com\example\Book\dto\ServiceProviderDTO.class
 com\example\Book\model\ServiceProvider.class
 com\example\Book\service\MyUserDetailsService.class
-com\example\Book\controller\ConsumerController.class
 com\example\Book\model\Booking.class
 com\example\Book\repo\BookingRepository.class
 com\example\Book\service\BookingService.class
