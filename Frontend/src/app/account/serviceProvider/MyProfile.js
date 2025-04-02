@@ -2,29 +2,29 @@ import React, { useState } from "react";
 import { updateServiceProviderProfile } from "../../../services/api";
 import { toast } from "react-toastify";
 import { Pencil } from "lucide-react";
+import "./MyProfile.css";
 
 const MyProfile = ({ userData, setUserData }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [editedData, setEditedData] = useState({ ...userData });
   const [loading, setLoading] = useState(false);
-  const [profileImage, setProfileImage] = useState(null);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setEditedData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-  };
-
-  const handleImageChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setProfileImage(reader.result);
-      };
-      reader.readAsDataURL(file);
+    if (name.includes(".")) {
+      const [parent, child] = name.split(".");
+      setEditedData((prev) => ({
+        ...prev,
+        [parent]: {
+          ...prev[parent],
+          [child]: value,
+        },
+      }));
+    } else {
+      setEditedData((prev) => ({
+        ...prev,
+        [name]: value,
+      }));
     }
   };
 
@@ -33,394 +33,251 @@ const MyProfile = ({ userData, setUserData }) => {
     setLoading(true);
 
     try {
-      console.log("Current userData:", userData);
-      console.log("Edited data:", editedData);
+      // Check if token exists
+      const token = localStorage.getItem("token");
+      if (!token) {
+        toast.error("Authentication required. Please login again.");
+        // Redirect to login page
+        window.location.href = "/service-provider/login";
+        return;
+      }
 
-      const formData = new FormData();
-
-      // Add all the profile fields with proper type handling
       const dataToUpdate = {
         username: editedData.username || userData.username || "",
         email: editedData.email || userData.email || "",
-        contact: editedData.phone || userData.contact || "",
+        contact: editedData.contact || userData.contact || "",
         address: editedData.address || userData.address || "",
-        experience: parseInt(
-          editedData.experience || userData.experience || "0"
-        ),
-        isActive: Boolean(editedData.isActive ?? userData.isActive ?? false),
+        bio: editedData.bio || userData.bio || "",
+        firstName: editedData.firstName || userData.firstName || "",
+        lastName: editedData.lastName || userData.lastName || "",
+        experience: editedData.experience || userData.experience || 0,
+        isActive:
+          editedData.isActive !== undefined
+            ? editedData.isActive
+            : userData.isActive || false,
+        profileImage: editedData.profileImage || userData.profileImage || "",
       };
 
-      console.log("Preparing to update with data:", dataToUpdate);
+      const response = await updateServiceProviderProfile(dataToUpdate);
 
-      // Add each field to FormData
-      Object.entries(dataToUpdate).forEach(([key, value]) => {
-        if (value !== undefined && value !== null) {
-          if (typeof value === "object") {
-            formData.append(key, JSON.stringify(value));
-          } else {
-            formData.append(key, value.toString());
-          }
-        }
-      });
-
-      // Add profile image if changed
-      if (profileImage) {
-        formData.append("profileImage", profileImage);
+      if (!response) {
+        throw new Error("No response received from server");
       }
 
-      console.log("Submitting form data...");
-      const response = await updateServiceProviderProfile(formData);
-      console.log("Update response:", response);
-
-      // Update the local state with the response data
-      setUserData((prev) => {
-        const newData = {
-          ...prev,
-          ...response,
-          // Preserve any fields that might not be returned by the API
-          profileImage: profileImage || prev.profileImage,
-        };
-        console.log("Updating user data to:", newData);
-        return newData;
-      });
+      setUserData((prev) => ({
+        ...prev,
+        ...response,
+      }));
 
       setIsEditing(false);
       toast.success("Profile updated successfully!");
     } catch (error) {
-      console.error("Error updating profile:", error);
-      // Show a more user-friendly error message
-      toast.error(
-        error.message && error.message.includes("Failed to fetch")
-          ? "Unable to connect to the server. Please try again later."
-          : error.message || "Failed to update profile"
-      );
+      console.error("Profile update error:", error);
+
+      // Handle different types of errors
+      if (
+        error.message.includes("Authentication required") ||
+        error.message.includes("Invalid token") ||
+        error.message.includes("Session expired")
+      ) {
+        toast.error("Session expired. Please login again.");
+        // Clear local storage and redirect to login
+        localStorage.removeItem("token");
+        localStorage.removeItem("userInfo");
+        window.location.href = "/service-provider/login";
+      } else if (error.response?.status === 403) {
+        toast.error("Access denied. Please login again.");
+        window.location.href = "/service-provider/login";
+      } else if (error.message.includes("Network Error")) {
+        toast.error("Network error. Please check your internet connection.");
+      } else {
+        toast.error(
+          error.message || "Failed to update profile. Please try again."
+        );
+      }
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="max-w-4xl mx-auto">
-      <div className="bg-gradient-to-r from-cyan-50 to-blue-50 rounded-lg shadow-lg overflow-hidden">
-        {/* Profile Header */}
-        <div className="p-6 relative">
-          <h2 className="text-2xl font-bold text-gray-800 mb-6">My Profile</h2>
-
-          <div className="flex items-start space-x-6">
-            <div className="relative">
-              <div className="w-24 h-24 rounded-full overflow-hidden bg-gray-200">
-                <img
-                  src={
-                    profileImage ||
-                    userData.profileImage ||
-                    "/default-avatar.png"
-                  }
-                  alt="Profile"
-                  className="w-full h-full object-cover"
-                />
-              </div>
-              {isEditing && (
-                <label className="absolute bottom-0 right-0 bg-blue-500 rounded-full p-2 cursor-pointer hover:bg-blue-600 transition">
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={handleImageChange}
-                    className="hidden"
-                  />
-                  <Pencil size={16} className="text-white" />
-                </label>
-              )}
-            </div>
-
-            <div className="flex-1">
-              <div className="flex justify-between items-start">
-                <div>
-                  <h3 className="text-xl font-semibold text-gray-800">
-                    {isEditing ? (
-                      <input
-                        type="text"
-                        name="name"
-                        value={editedData.name || ""}
-                        onChange={handleChange}
-                        className="border-b border-gray-300 focus:border-blue-500 bg-transparent px-1"
-                        placeholder="Your name"
-                      />
-                    ) : (
-                      userData.name || "Add your name"
-                    )}
-                  </h3>
-                  <div className="mt-2">
-                    {isEditing ? (
-                      <textarea
-                        name="bio"
-                        value={editedData.bio || ""}
-                        onChange={handleChange}
-                        className="w-full border-gray-300 rounded-md focus:border-blue-500 bg-transparent"
-                        placeholder="Write a short bio..."
-                        rows="2"
-                      />
-                    ) : (
-                      <p className="text-gray-600">
-                        {userData.bio || "Add a short bio"}
-                      </p>
-                    )}
-                  </div>
-                </div>
-
-                {!isEditing ? (
-                  <button
-                    onClick={() => setIsEditing(true)}
-                    className="flex items-center text-blue-500 hover:text-blue-600"
-                  >
-                    <Pencil size={16} className="mr-1" />
-                    Edit
-                  </button>
-                ) : (
-                  <div className="space-x-2">
-                    <button
-                      onClick={() => {
-                        setIsEditing(false);
-                        setEditedData({ ...userData });
-                      }}
-                      className="px-3 py-1 text-gray-600 hover:text-gray-700"
-                    >
-                      Cancel
-                    </button>
-                    <button
-                      onClick={handleSubmit}
-                      disabled={loading}
-                      className="px-3 py-1 bg-blue-500 text-white rounded-md hover:bg-blue-600 disabled:opacity-50"
-                    >
-                      {loading ? "Saving..." : "Save"}
-                    </button>
-                  </div>
-                )}
-              </div>
-            </div>
+    <div className="profile-container">
+      {/* Profile Card */}
+      <div className="profile-card">
+        <div className="flex items-center w-full">
+          <img
+            src={userData.profileImage || "/default-avatar.png"}
+            alt="Profile"
+            className="w-20 h-20 rounded-full object-cover border-4 border-white"
+          />
+          <div className="profile-details">
+            <p className="bold">
+              Name: {userData.firstName} {userData.lastName}
+            </p>
+            <p>Bio: {userData.bio || "Not specified"}</p>
           </div>
+          {!isEditing && (
+            <button onClick={() => setIsEditing(true)} className="edit-icon">
+              <Pencil size={20} />
+            </button>
+          )}
+        </div>
+      </div>
+
+      {/* Personnel Information */}
+      <div className="section">
+        <div className="flex justify-between items-center mb-4">
+          <h3>Personnel Information</h3>
+          {!isEditing && (
+            <button onClick={() => setIsEditing(true)} className="edit-icon">
+              <Pencil size={20} />
+            </button>
+          )}
         </div>
 
-        {/* Personnel Information */}
-        <div className="bg-white p-6">
-          <div className="flex justify-between items-center mb-4">
-            <h3 className="text-lg font-semibold text-gray-800">
-              Personnel Information
-            </h3>
-            {!isEditing && (
-              <button
-                onClick={() => setIsEditing(true)}
-                className="flex items-center text-blue-500 hover:text-blue-600"
-              >
-                <Pencil size={16} className="mr-1" />
-                Edit
-              </button>
-            )}
-          </div>
-
-          <div className="grid grid-cols-2 gap-6">
-            <div>
-              <label className="block text-sm font-medium text-gray-600 mb-1">
-                First Name
-              </label>
+        <div className="info">
+          <div>
+            <p className="text-gray-600 mb-1">First Name</p>
+            {isEditing ? (
               <input
                 type="text"
                 name="firstName"
-                value={
-                  isEditing
-                    ? editedData.firstName || ""
-                    : userData.firstName || ""
-                }
+                value={editedData.firstName || ""}
                 onChange={handleChange}
-                readOnly={!isEditing}
-                className={`w-full px-3 py-2 rounded-md ${
-                  isEditing
-                    ? "border-gray-300 focus:border-blue-500"
-                    : "bg-gray-50 border-transparent"
-                }`}
+                className="w-full p-2 border rounded bg-white"
               />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-600 mb-1">
-                Last Name
-              </label>
-              <input
-                type="text"
-                name="lastName"
-                value={
-                  isEditing
-                    ? editedData.lastName || ""
-                    : userData.lastName || ""
-                }
-                onChange={handleChange}
-                readOnly={!isEditing}
-                className={`w-full px-3 py-2 rounded-md ${
-                  isEditing
-                    ? "border-gray-300 focus:border-blue-500"
-                    : "bg-gray-50 border-transparent"
-                }`}
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-600 mb-1">
-                E-mail
-              </label>
-              <input
-                type="email"
-                name="email"
-                value={
-                  isEditing ? editedData.email || "" : userData.email || ""
-                }
-                onChange={handleChange}
-                readOnly={!isEditing}
-                className={`w-full px-3 py-2 rounded-md ${
-                  isEditing
-                    ? "border-gray-300 focus:border-blue-500"
-                    : "bg-gray-50 border-transparent"
-                }`}
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-600 mb-1">
-                Tel No:
-              </label>
-              <input
-                type="tel"
-                name="phone"
-                value={
-                  isEditing ? editedData.phone || "" : userData.phone || ""
-                }
-                onChange={handleChange}
-                readOnly={!isEditing}
-                className={`w-full px-3 py-2 rounded-md ${
-                  isEditing
-                    ? "border-gray-300 focus:border-blue-500"
-                    : "bg-gray-50 border-transparent"
-                }`}
-              />
-            </div>
-          </div>
-
-          <div className="mt-4">
-            <label className="block text-sm font-medium text-gray-600 mb-1">
-              Bio
-            </label>
-            <textarea
-              name="bio"
-              value={isEditing ? editedData.bio || "" : userData.bio || ""}
-              onChange={handleChange}
-              readOnly={!isEditing}
-              rows="3"
-              className={`w-full px-3 py-2 rounded-md ${
-                isEditing
-                  ? "border-gray-300 focus:border-blue-500"
-                  : "bg-gray-50 border-transparent"
-              }`}
-            />
-          </div>
-        </div>
-
-        {/* Address Information */}
-        <div className="bg-gray-50 p-6">
-          <div className="flex justify-between items-center mb-4">
-            <h3 className="text-lg font-semibold text-gray-800">Address</h3>
-            {!isEditing && (
-              <button
-                onClick={() => setIsEditing(true)}
-                className="flex items-center text-blue-500 hover:text-blue-600"
-              >
-                <Pencil size={16} className="mr-1" />
-                Edit
-              </button>
+            ) : (
+              <p className="bold">{userData.firstName || "Not specified"}</p>
             )}
           </div>
 
-          <div className="grid grid-cols-2 gap-6">
-            <div>
-              <label className="block text-sm font-medium text-gray-600 mb-1">
-                Country
-              </label>
+          <div>
+            <p className="text-gray-600 mb-1">Last Name</p>
+            {isEditing ? (
               <input
                 type="text"
-                name="country"
-                value={
-                  isEditing
-                    ? editedData.address?.country || ""
-                    : userData.address?.country || ""
-                }
+                name="lastName"
+                value={editedData.lastName || ""}
                 onChange={handleChange}
-                readOnly={!isEditing}
-                className={`w-full px-3 py-2 rounded-md ${
-                  isEditing
-                    ? "border-gray-300 focus:border-blue-500"
-                    : "bg-gray-50 border-transparent"
-                }`}
+                className="w-full p-2 border rounded bg-white"
               />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-600 mb-1">
-                District
-              </label>
+            ) : (
+              <p className="bold">{userData.lastName || "Not specified"}</p>
+            )}
+          </div>
+
+          <div>
+            <p className="text-gray-600 mb-1">E-mail</p>
+            {isEditing ? (
               <input
-                type="text"
-                name="district"
-                value={
-                  isEditing
-                    ? editedData.address?.district || ""
-                    : userData.address?.district || ""
-                }
+                type="email"
+                name="email"
+                value={editedData.email || ""}
                 onChange={handleChange}
-                readOnly={!isEditing}
-                className={`w-full px-3 py-2 rounded-md ${
-                  isEditing
-                    ? "border-gray-300 focus:border-blue-500"
-                    : "bg-gray-50 border-transparent"
-                }`}
+                className="w-full p-2 border rounded bg-white"
+                disabled
               />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-600 mb-1">
-                City
-              </label>
+            ) : (
+              <p className="email">{userData.email || "Not specified"}</p>
+            )}
+          </div>
+
+          <div>
+            <p className="text-gray-600 mb-1">Tel No:</p>
+            {isEditing ? (
               <input
-                type="text"
-                name="city"
-                value={
-                  isEditing
-                    ? editedData.address?.city || ""
-                    : userData.address?.city || ""
-                }
+                type="tel"
+                name="contact"
+                value={editedData.contact || ""}
                 onChange={handleChange}
-                readOnly={!isEditing}
-                className={`w-full px-3 py-2 rounded-md ${
-                  isEditing
-                    ? "border-gray-300 focus:border-blue-500"
-                    : "bg-gray-50 border-transparent"
-                }`}
+                className="w-full p-2 border rounded bg-white"
               />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-600 mb-1">
-                Postal Code
-              </label>
+            ) : (
+              <p className="bold">{userData.contact || "Not specified"}</p>
+            )}
+          </div>
+
+          <div>
+            <p className="text-gray-600 mb-1">Experience (Years)</p>
+            {isEditing ? (
               <input
-                type="text"
-                name="postalCode"
-                value={
-                  isEditing
-                    ? editedData.address?.postalCode || ""
-                    : userData.address?.postalCode || ""
-                }
+                type="number"
+                name="experience"
+                value={editedData.experience || 0}
                 onChange={handleChange}
-                readOnly={!isEditing}
-                className={`w-full px-3 py-2 rounded-md ${
-                  isEditing
-                    ? "border-gray-300 focus:border-blue-500"
-                    : "bg-gray-50 border-transparent"
-                }`}
+                className="w-full p-2 border rounded bg-white"
+                min="0"
               />
-            </div>
+            ) : (
+              <p className="bold">{userData.experience || "0"} years</p>
+            )}
+          </div>
+
+          <div className="w-full">
+            <p className="text-gray-600 mb-1">Bio</p>
+            {isEditing ? (
+              <textarea
+                name="bio"
+                value={editedData.bio || ""}
+                onChange={handleChange}
+                className="w-full p-2 border rounded bg-white"
+                rows="3"
+              />
+            ) : (
+              <p>{userData.bio || "Not specified"}</p>
+            )}
           </div>
         </div>
+      </div>
+
+      {/* Address Information */}
+      <div className="section">
+        <div className="flex justify-between items-center mb-4">
+          <h3>Address</h3>
+          {!isEditing && (
+            <button onClick={() => setIsEditing(true)} className="edit-icon">
+              <Pencil size={20} />
+            </button>
+          )}
+        </div>
+
+        <div className="info">
+          <div className="w-full">
+            <p className="text-gray-600 mb-1">Address</p>
+            {isEditing ? (
+              <textarea
+                name="address"
+                value={editedData.address || ""}
+                onChange={handleChange}
+                className="w-full p-2 border rounded bg-white"
+                rows="2"
+              />
+            ) : (
+              <p>{userData.address || "Not specified"}</p>
+            )}
+          </div>
+        </div>
+
+        {isEditing && (
+          <div className="flex justify-end mt-4 space-x-2">
+            <button
+              onClick={() => {
+                setIsEditing(false);
+                setEditedData({ ...userData });
+              }}
+              className="px-4 py-2 text-gray-600 hover:text-gray-700"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={handleSubmit}
+              disabled={loading}
+              className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 disabled:opacity-50"
+            >
+              {loading ? "Saving..." : "Save"}
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );

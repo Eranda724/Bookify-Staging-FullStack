@@ -49,6 +49,35 @@ const handleNetworkError = (error) => {
   throw error;
 };
 
+// Helper function to get clean token
+const getCleanToken = () => {
+  const token = localStorage.getItem("token");
+  if (!token) {
+    throw new Error("Authentication required");
+  }
+  // Remove any whitespace and Bearer prefix
+  const cleanToken = token.replace(/^Bearer\s+/, "").trim();
+  if (!cleanToken) {
+    throw new Error("Invalid token format");
+  }
+  return cleanToken;
+};
+
+// Helper function to handle auth errors
+const handleAuthError = (error) => {
+  console.error("Authentication error:", error);
+  // Clear all auth-related data
+  localStorage.removeItem("token");
+  localStorage.removeItem("userInfo");
+  localStorage.removeItem("userRole");
+
+  // Only redirect if we're not already on the login page
+  if (!window.location.pathname.includes("/login")) {
+    window.location.href = "/service-provider/login";
+  }
+  throw new Error("Session expired. Please login again.");
+};
+
 // Registration endpoints
 export const registerservice = async (formData) => {
   const endpoint = "auth/service-provider/register";
@@ -136,9 +165,6 @@ export const loginUser = async (formData) => {
       headers: {
         "Content-Type": "application/json",
         Accept: "application/json",
-        "Access-Control-Allow-Origin": "*",
-        "Access-Control-Allow-Methods": "POST, OPTIONS",
-        "Access-Control-Allow-Headers": "Content-Type, Authorization",
       },
       credentials: "include",
       body: JSON.stringify(formData),
@@ -153,20 +179,20 @@ export const loginUser = async (formData) => {
     const data = await handleResponse(response);
     console.log("Login response data:", data);
 
-    // Store the token WITHOUT the Bearer prefix
     if (data.token) {
-      // Remove 'Bearer ' prefix if it exists
-      const token = data.token.replace("Bearer ", "");
-      localStorage.setItem("token", token);
-      console.log("Token stored in localStorage:", token);
+      // Store the clean token without Bearer prefix and whitespace
+      const cleanToken = data.token.replace(/^Bearer\s+/, "").trim();
+      if (!cleanToken) {
+        throw new Error("Invalid token received from server");
+      }
+      localStorage.setItem("token", cleanToken);
+      console.log("Token stored in localStorage:", cleanToken);
 
-      // If user info is included in the response, store it
       if (data.user) {
         localStorage.setItem("userInfo", JSON.stringify(data.user));
         console.log("User info stored in localStorage:", data.user);
       }
 
-      // Store user role
       const userRole =
         formData.role === "consumers" ? "consumer" : "service-provider";
       localStorage.setItem("userRole", userRole);
@@ -384,36 +410,9 @@ export const createBooking = async (bookingData) => {
 
 // Update service provider profile
 export const updateServiceProviderProfile = async (profileData) => {
-  const token = localStorage.getItem("token");
-
-  if (!token) {
-    throw new Error("Authentication required");
-  }
-
   try {
-    // Convert FormData to JSON if it's a FormData object
-    let dataToSend = profileData;
-    if (profileData instanceof FormData) {
-      dataToSend = {};
-      for (let [key, value] of profileData.entries()) {
-        console.log(`Processing form field: ${key} = ${value}`);
-        if (key === "address") {
-          try {
-            dataToSend[key] = JSON.parse(value);
-          } catch (e) {
-            dataToSend[key] = value;
-          }
-        } else if (key === "experience") {
-          dataToSend[key] = parseInt(value) || 0;
-        } else if (key === "isActive") {
-          dataToSend[key] = value === "true";
-        } else {
-          dataToSend[key] = value;
-        }
-      }
-    }
-
-    console.log("Sending profile update with data:", dataToSend);
+    const token = getCleanToken();
+    console.log("Sending profile update with data:", profileData);
 
     const response = await fetch(`${BASE_URL}api/service-providers/profile`, {
       method: "PUT",
@@ -423,7 +422,7 @@ export const updateServiceProviderProfile = async (profileData) => {
         Accept: "application/json",
       },
       credentials: "include",
-      body: JSON.stringify(dataToSend),
+      body: JSON.stringify(profileData),
     });
 
     console.log("Profile update response status:", response.status);
@@ -431,6 +430,10 @@ export const updateServiceProviderProfile = async (profileData) => {
     if (!response.ok) {
       const errorText = await response.text();
       console.error("Profile update error response:", errorText);
+
+      if (response.status === 401 || response.status === 403) {
+        return handleAuthError(new Error(errorText || "Authentication failed"));
+      }
 
       // Try to parse error message if it's JSON
       try {
@@ -457,6 +460,13 @@ export const updateServiceProviderProfile = async (profileData) => {
     return updatedData;
   } catch (error) {
     console.error("Error updating service provider profile:", error);
+    if (
+      error.message.includes("Authentication required") ||
+      error.message.includes("Session expired") ||
+      error.message.includes("Invalid token")
+    ) {
+      return handleAuthError(error);
+    }
     throw error;
   }
 };

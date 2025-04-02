@@ -14,6 +14,7 @@ C:\Users\erand\OneDrive - University of Jaffna\projects\Bookify-Staging\Backend\
 C:\Users\erand\OneDrive - University of Jaffna\projects\Bookify-Staging\Backend\src\main\java\com\example\Book\service\MyUserDetailsService.java
 C:\Users\erand\OneDrive - University of Jaffna\projects\Bookify-Staging\Backend\src\main\java\com\example\Book\controller\UserController.java
 C:\Users\erand\OneDrive - University of Jaffna\projects\Bookify-Staging\Backend\src\main\java\com\example\Book\service\ReminderScheduler.java
+C:\Users\erand\OneDrive - University of Jaffna\projects\Bookify-Staging\Backend\src\main\java\com\example\Book\controller\ServiceProviderController.java
 C:\Users\erand\OneDrive - University of Jaffna\projects\Bookify-Staging\Backend\src\main\java\com\example\Book\dto\ScheduleDTO.java
 C:\Users\erand\OneDrive - University of Jaffna\projects\Bookify-Staging\Backend\src\main\java\com\example\Book\repo\ScheduleRepository.java
 C:\Users\erand\OneDrive - University of Jaffna\projects\Bookify-Staging\Backend\src\main\java\com\example\Book\config\SecurityConfig.java

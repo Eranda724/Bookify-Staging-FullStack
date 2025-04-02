@@ -57,7 +57,11 @@ public class ServiceProviderController {
                     "address", sp.getAddress() != null ? sp.getAddress() : "",
                     "contact", sp.getContact() != null ? sp.getContact() : "",
                     "experience", sp.getExperience() != null ? sp.getExperience() : 0,
-                    "isActive", sp.getIsActive() != null ? sp.getIsActive() : false
+                    "isActive", sp.getIsActive() != null ? sp.getIsActive() : false,
+                    "firstName", sp.getFirstName() != null ? sp.getFirstName() : "",
+                    "lastName", sp.getLastName() != null ? sp.getLastName() : "",
+                    "bio", sp.getBio() != null ? sp.getBio() : "",
+                    "profileImage", sp.getProfileImage() != null ? sp.getProfileImage() : ""
                 );
                 System.out.println("Found provider profile: " + response);
                 return ResponseEntity.ok(response);
@@ -118,6 +122,18 @@ public class ServiceProviderController {
                 if (profileData.containsKey("contact")) {
                     provider.setContact((String) profileData.get("contact"));
                 }
+                if (profileData.containsKey("firstName")) {
+                    provider.setFirstName((String) profileData.get("firstName"));
+                }
+                if (profileData.containsKey("lastName")) {
+                    provider.setLastName((String) profileData.get("lastName"));
+                }
+                if (profileData.containsKey("bio")) {
+                    provider.setBio((String) profileData.get("bio"));
+                }
+                if (profileData.containsKey("profileImage")) {
+                    provider.setProfileImage((String) profileData.get("profileImage"));
+                }
                 if (profileData.containsKey("experience")) {
                     Object expObj = profileData.get("experience");
                     if (expObj != null) {
@@ -156,7 +172,11 @@ public class ServiceProviderController {
                     "address", updatedProvider.getAddress() != null ? updatedProvider.getAddress() : "",
                     "contact", updatedProvider.getContact() != null ? updatedProvider.getContact() : "",
                     "experience", updatedProvider.getExperience() != null ? updatedProvider.getExperience() : 0,
-                    "isActive", updatedProvider.getIsActive() != null ? updatedProvider.getIsActive() : false
+                    "isActive", updatedProvider.getIsActive() != null ? updatedProvider.getIsActive() : false,
+                    "firstName", updatedProvider.getFirstName() != null ? updatedProvider.getFirstName() : "",
+                    "lastName", updatedProvider.getLastName() != null ? updatedProvider.getLastName() : "",
+                    "bio", updatedProvider.getBio() != null ? updatedProvider.getBio() : "",
+                    "profileImage", updatedProvider.getProfileImage() != null ? updatedProvider.getProfileImage() : ""
                 );
 
                 System.out.println("Returning updated profile: " + response);

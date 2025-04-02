@@ -50,6 +50,14 @@ public class JWTService {
     }
 
     public String extractUserName(String token) {
+        if (token == null) {
+            throw new IllegalArgumentException("Token cannot be null");
+        }
+        // Clean the token
+        token = token.trim();
+        if (token.isEmpty()) {
+            throw new IllegalArgumentException("Token cannot be empty");
+        }
         return extractClaim(token, Claims::getSubject);
     }
 
@@ -59,16 +67,29 @@ public class JWTService {
     }
 
     private Claims extractAllClaims(String token) {
-        return Jwts.parser()
-                .verifyWith(getKey())
-                .build()
-                .parseSignedClaims(token)
-                .getPayload();
+        try {
+            return Jwts.parser()
+                    .verifyWith(getKey())
+                    .build()
+                    .parseSignedClaims(token.trim())
+                    .getPayload();
+        } catch (Exception e) {
+            throw new IllegalArgumentException("Invalid token format: " + e.getMessage());
+        }
     }
 
     public boolean validateToken(String token, UserDetails userDetails) {
-        final String userName = extractUserName(token);
-        return (userName.equals(userDetails.getUsername()) && !isTokenExpired(token));
+        if (token == null || userDetails == null) {
+            return false;
+        }
+        try {
+            token = token.trim();
+            final String userName = extractUserName(token);
+            return (userName.equals(userDetails.getUsername()) && !isTokenExpired(token));
+        } catch (Exception e) {
+            System.out.println("Token validation failed: " + e.getMessage());
+            return false;
+        }
     }
 
     private boolean isTokenExpired(String token) {
