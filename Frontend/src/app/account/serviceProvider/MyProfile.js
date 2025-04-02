@@ -2,7 +2,83 @@ import React, { useState } from "react";
 import { updateServiceProviderProfile } from "../../../services/api";
 import { toast } from "react-toastify";
 import { Pencil } from "lucide-react";
-import "./MyProfile.css";
+import styled from "styled-components";
+
+// Styled components for the profile
+const ProfileContainer = styled.div`
+  width: 80%;
+  margin: 30px auto;
+  padding: 20px;
+`;
+
+const ProfileCard = styled.div`
+  background: #bce3ec;
+  padding: 20px;
+  border-radius: 12px;
+  margin-bottom: 20px;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+`;
+
+const ProfileDetails = styled.div`
+  flex-grow: 1;
+  margin-left: 20px;
+
+  p {
+    margin: 5px 0;
+    color: #222;
+    font-size: 16px;
+  }
+`;
+
+const Bold = styled.span`
+  font-weight: bold;
+  font-size: 17px;
+`;
+
+const EditIcon = styled.button`
+  cursor: pointer;
+  color: #333;
+  display: flex;
+  align-items: center;
+
+  &:hover {
+    color: #0056b3;
+  }
+`;
+
+const Section = styled.div`
+  background: #bce3ec;
+  padding: 20px;
+  border-radius: 12px;
+  margin-bottom: 15px;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+
+  h3 {
+    font-weight: bold;
+    margin-bottom: 15px;
+    color: #222;
+    font-size: 18px;
+  }
+`;
+
+const Info = styled.div`
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+
+  div {
+    width: 48%;
+    margin-bottom: 10px;
+    color: #333;
+    font-size: 16px;
+  }
+`;
+
+const Email = styled.p`
+  color: #0056b3;
+  font-weight: bold;
+  text-decoration: none;
+`;
 
 const MyProfile = ({ userData, setUserData }) => {
   const [isEditing, setIsEditing] = useState(false);
@@ -101,41 +177,43 @@ const MyProfile = ({ userData, setUserData }) => {
   };
 
   return (
-    <div className="profile-container">
+    <ProfileContainer>
       {/* Profile Card */}
-      <div className="profile-card">
+      <ProfileCard>
         <div className="flex items-center w-full">
           <img
             src={userData.profileImage || "/default-avatar.png"}
             alt="Profile"
             className="w-20 h-20 rounded-full object-cover border-4 border-white"
           />
-          <div className="profile-details">
-            <p className="bold">
-              Name: {userData.firstName} {userData.lastName}
+          <ProfileDetails>
+            <p>
+              <Bold>
+                Name: {userData.firstName} {userData.lastName}
+              </Bold>
             </p>
             <p>Bio: {userData.bio || "Not specified"}</p>
-          </div>
+          </ProfileDetails>
           {!isEditing && (
-            <button onClick={() => setIsEditing(true)} className="edit-icon">
+            <EditIcon onClick={() => setIsEditing(true)}>
               <Pencil size={20} />
-            </button>
+            </EditIcon>
           )}
         </div>
-      </div>
+      </ProfileCard>
 
       {/* Personnel Information */}
-      <div className="section">
+      <Section>
         <div className="flex justify-between items-center mb-4">
           <h3>Personnel Information</h3>
           {!isEditing && (
-            <button onClick={() => setIsEditing(true)} className="edit-icon">
+            <EditIcon onClick={() => setIsEditing(true)}>
               <Pencil size={20} />
-            </button>
+            </EditIcon>
           )}
         </div>
 
-        <div className="info">
+        <Info>
           <div>
             <p className="text-gray-600 mb-1">First Name</p>
             {isEditing ? (
@@ -147,7 +225,9 @@ const MyProfile = ({ userData, setUserData }) => {
                 className="w-full p-2 border rounded bg-white"
               />
             ) : (
-              <p className="bold">{userData.firstName || "Not specified"}</p>
+              <p>
+                <Bold>{userData.firstName || "Not specified"}</Bold>
+              </p>
             )}
           </div>
 
@@ -162,7 +242,9 @@ const MyProfile = ({ userData, setUserData }) => {
                 className="w-full p-2 border rounded bg-white"
               />
             ) : (
-              <p className="bold">{userData.lastName || "Not specified"}</p>
+              <p>
+                <Bold>{userData.lastName || "Not specified"}</Bold>
+              </p>
             )}
           </div>
 
@@ -178,7 +260,7 @@ const MyProfile = ({ userData, setUserData }) => {
                 disabled
               />
             ) : (
-              <p className="email">{userData.email || "Not specified"}</p>
+              <Email>{userData.email || "Not specified"}</Email>
             )}
           </div>
 
@@ -193,7 +275,9 @@ const MyProfile = ({ userData, setUserData }) => {
                 className="w-full p-2 border rounded bg-white"
               />
             ) : (
-              <p className="bold">{userData.contact || "Not specified"}</p>
+              <p>
+                <Bold>{userData.contact || "Not specified"}</Bold>
+              </p>
             )}
           </div>
 
@@ -209,7 +293,9 @@ const MyProfile = ({ userData, setUserData }) => {
                 min="0"
               />
             ) : (
-              <p className="bold">{userData.experience || "0"} years</p>
+              <p>
+                <Bold>{userData.experience || "0"} years</Bold>
+              </p>
             )}
           </div>
 
@@ -227,21 +313,21 @@ const MyProfile = ({ userData, setUserData }) => {
               <p>{userData.bio || "Not specified"}</p>
             )}
           </div>
-        </div>
-      </div>
+        </Info>
+      </Section>
 
       {/* Address Information */}
-      <div className="section">
+      <Section>
         <div className="flex justify-between items-center mb-4">
           <h3>Address</h3>
           {!isEditing && (
-            <button onClick={() => setIsEditing(true)} className="edit-icon">
+            <EditIcon onClick={() => setIsEditing(true)}>
               <Pencil size={20} />
-            </button>
+            </EditIcon>
           )}
         </div>
 
-        <div className="info">
+        <Info>
           <div className="w-full">
             <p className="text-gray-600 mb-1">Address</p>
             {isEditing ? (
@@ -256,7 +342,7 @@ const MyProfile = ({ userData, setUserData }) => {
               <p>{userData.address || "Not specified"}</p>
             )}
           </div>
-        </div>
+        </Info>
 
         {isEditing && (
           <div className="flex justify-end mt-4 space-x-2">
@@ -278,8 +364,8 @@ const MyProfile = ({ userData, setUserData }) => {
             </button>
           </div>
         )}
-      </div>
-    </div>
+      </Section>
+    </ProfileContainer>
   );
 };
 
