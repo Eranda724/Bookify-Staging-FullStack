@@ -1,326 +1,279 @@
-import React, { useState, useEffect } from "react";
-import {
-  fetchProviderServices,
-  updateProviderService,
-} from "../../../services/api";
-import { toast } from "react-toastify";
+import React, { useState } from 'react';
 import Navigation from "../../../components/ui/navigation";
 
-const ServiceDetails = ({ userData }) => {
+const ServiceDetails = ({ serviceData }) => {
   const [editMode, setEditMode] = useState(false);
-  const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
-    service_id: null,
-    name: "",
-    specialization: "",
-    duration: 30,
-    price: 0,
-    startTime: "08:00",
-    endTime: "17:00",
-    description: "",
-    category: "",
-    workingDays: {
-      monday: true,
-      tuesday: true,
-      wednesday: true,
-      thursday: true,
-      friday: true,
-      saturday: false,
-      sunday: false,
+    providerName: serviceData?.providerName || '',
+    specialty: serviceData?.specialty || '',
+    qualification: serviceData?.qualification || '',
+    contactNumber: serviceData?.contactNumber || '',
+    workplace: serviceData?.workplace || '',
+    address: {
+      clinic: serviceData?.address?.clinic || '',
+      district: serviceData?.address?.district || '',
+      county: serviceData?.address?.county || ''
     },
+    workingDays: serviceData?.workingDays || {
+      monday: false,
+      tuesday: false,
+      wednesday: false,
+      thursday: false,
+      friday: false,
+      saturday: false,
+      sunday: false
+    },
+    workHours: serviceData?.workHours || {
+      start: '08:00',
+      end: '17:00'
+    },
+    timePackages: serviceData?.timePackages || 4
   });
-
-  useEffect(() => {
-    loadServiceData();
-  }, []);
-
-  const loadServiceData = async () => {
-    try {
-      setLoading(true);
-      const services = await fetchProviderServices();
-      if (services && services.length > 0) {
-        // Use the first service or create a new one if none exists
-        const service = services[0];
-        setFormData({
-          service_id: service.service_id,
-          name: service.name || "",
-          specialization: service.specialization || "",
-          duration: service.duration || 30,
-          price: service.price || 0,
-          startTime: service.startTime
-            ? new Date(service.startTime).toLocaleTimeString("en-US", {
-                hour12: false,
-                hour: "2-digit",
-                minute: "2-digit",
-              })
-            : "08:00",
-          endTime: service.endTime
-            ? new Date(service.endTime).toLocaleTimeString("en-US", {
-                hour12: false,
-                hour: "2-digit",
-                minute: "2-digit",
-              })
-            : "17:00",
-          description: service.description || "",
-          category: service.category || "",
-          workingDays: formData.workingDays, // Keep default working days
-        });
-      }
-    } catch (error) {
-      console.error("Error loading service data:", error);
-      toast.error("Failed to load service details");
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({
+    setFormData(prev => ({
       ...prev,
-      [name]: value,
+      [name]: value
     }));
   };
 
-  const handleWorkingDaysChange = (day) => {
-    setFormData((prev) => ({
+  const handleAddressChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      address: {
+        ...prev.address,
+        [name]: value
+      }
+    }));
+  };
+
+  const handleDayToggle = (day) => {
+    setFormData(prev => ({
       ...prev,
       workingDays: {
         ...prev.workingDays,
-        [day]: !prev.workingDays[day],
-      },
+        [day]: !prev.workingDays[day]
+      }
     }));
   };
 
-  const handleSubmit = async () => {
-    try {
-      setLoading(true);
-
-      // Convert time strings to LocalDateTime format
-      const [startHour, startMinute] = formData.startTime.split(":");
-      const [endHour, endMinute] = formData.endTime.split(":");
-
-      const now = new Date();
-      const startDateTime = new Date(now);
-      startDateTime.setHours(parseInt(startHour), parseInt(startMinute), 0);
-
-      const endDateTime = new Date(now);
-      endDateTime.setHours(parseInt(endHour), parseInt(endMinute), 0);
-
-      const serviceData = {
-        service_id: formData.service_id,
-        name: formData.name,
-        specialization: formData.specialization,
-        duration: parseInt(formData.duration),
-        price: parseFloat(formData.price),
-        startTime: startDateTime.toISOString(),
-        endTime: endDateTime.toISOString(),
-        description: formData.description,
-        category: formData.category,
-      };
-
-      await updateProviderService(serviceData);
-      toast.success("Service details updated successfully");
-      setEditMode(false);
-      loadServiceData(); // Reload the data
-    } catch (error) {
-      console.error("Error updating service:", error);
-      toast.error("Failed to update service details");
-    } finally {
-      setLoading(false);
-    }
+  const handleTimeChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      workHours: {
+        ...prev.workHours,
+        [name]: value
+      }
+    }));
   };
 
-  if (loading) {
-    return <div className="text-center py-4">Loading service details...</div>;
-  }
+  const handleTimePackagesChange = (e) => {
+    const value = parseInt(e.target.value) || 1;
+    setFormData(prev => ({
+      ...prev,
+      timePackages: value
+    }));
+  };
+
+  const handleSave = () => {
+    // Here you would save the updated service data
+    console.log('Saving service details:', formData);
+    setEditMode(false);
+  };
+
+  // Helper function to calculate and display time slot duration
+  const calculateTimeSlotDuration = (start, end, packages) => {
+    const [startHour, startMinute] = start.split(':').map(Number);
+    const [endHour, endMinute] = end.split(':').map(Number);
+    
+    const startMinutes = startHour * 60 + startMinute;
+    const endMinutes = endHour * 60 + endMinute;
+    const totalMinutes = endMinutes - startMinutes;
+    
+    const slotDuration = Math.floor(totalMinutes / packages);
+    const hours = Math.floor(slotDuration / 60);
+    const minutes = slotDuration % 60;
+    
+    let durationText = '';
+    if (hours > 0) {
+      durationText += `${hours} hour${hours > 1 ? 's' : ''}`;
+    }
+    if (minutes > 0) {
+      durationText += `${hours > 0 ? ' and ' : ''}${minutes} minute${minutes > 1 ? 's' : ''}`;
+    }
+    
+    return `Each time slot will be ${durationText} long.`;
+  };
 
   return (
-    <div className="bg-cyan-100 p-8">
+    <div className='bg-cyan-100 p-8'>
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-xl font-semibold">Service Details</h2>
         {!editMode ? (
-          <button
+          <button 
             onClick={() => setEditMode(true)}
             className="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600 transition"
           >
             Edit Details
           </button>
         ) : (
-          <div className="space-x-2">
-            <button
-              onClick={() => {
-                setEditMode(false);
-                loadServiceData(); // Reset form data
-              }}
-              className="bg-gray-500 text-white py-2 px-4 rounded hover:bg-gray-600 transition"
-            >
-              Cancel
-            </button>
-            <button
-              onClick={handleSubmit}
-              disabled={loading}
-              className="bg-green-500 text-white py-2 px-4 rounded hover:bg-green-600 transition disabled:opacity-50"
-            >
-              {loading ? "Saving..." : "Save Changes"}
-            </button>
-          </div>
+          <button 
+            onClick={handleSave}
+            className="bg-green-500 text-white py-2 px-4 rounded hover:bg-green-600 transition"
+          >
+            Save Changes
+          </button>
         )}
       </div>
-
+      
       <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
-        <h3 className="text-lg font-medium mb-4">Service Information</h3>
-
+        <h3 className="text-lg font-medium mb-4">Provider Information</h3>
+        
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
           <div>
-            <label className="block text-gray-700 mb-1">Service Name</label>
+            <label className="block text-gray-700 mb-1">Provider Name</label>
             {editMode ? (
-              <input
-                type="text"
-                name="name"
-                value={formData.name}
+              <input 
+                type="text" 
+                name="providerName" 
+                value={formData.providerName} 
                 onChange={handleChange}
-                className="w-full border rounded-md p-2"
+                className="w-full border rounded-md p-2" 
               />
             ) : (
-              <p className="py-2">{formData.name || "Not specified"}</p>
+              <p className="py-2">{formData.providerName || 'Not specified'}</p>
             )}
           </div>
-
+          
           <div>
-            <label className="block text-gray-700 mb-1">Specialization</label>
+            <label className="block text-gray-700 mb-1">Specialty/Service</label>
             {editMode ? (
-              <input
-                type="text"
-                name="specialization"
-                value={formData.specialization}
+              <input 
+                type="text" 
+                name="specialty" 
+                value={formData.specialty} 
                 onChange={handleChange}
-                className="w-full border rounded-md p-2"
+                className="w-full border rounded-md p-2" 
               />
             ) : (
-              <p className="py-2">
-                {formData.specialization || "Not specified"}
-              </p>
+              <p className="py-2">{formData.specialty || 'Not specified'}</p>
             )}
           </div>
-
+          
           <div>
-            <label className="block text-gray-700 mb-1">
-              Duration (minutes)
-            </label>
+            <label className="block text-gray-700 mb-1">Qualification</label>
             {editMode ? (
-              <input
-                type="number"
-                name="duration"
-                value={formData.duration}
+              <input 
+                type="text" 
+                name="qualification" 
+                value={formData.qualification} 
                 onChange={handleChange}
-                className="w-full border rounded-md p-2"
+                className="w-full border rounded-md p-2" 
               />
             ) : (
-              <p className="py-2">{formData.duration} minutes</p>
+              <p className="py-2">{formData.qualification || 'Not specified'}</p>
             )}
           </div>
-
+          
           <div>
-            <label className="block text-gray-700 mb-1">Price</label>
+            <label className="block text-gray-700 mb-1">Contact Number</label>
             {editMode ? (
-              <input
-                type="number"
-                name="price"
-                value={formData.price}
+              <input 
+                type="text" 
+                name="contactNumber" 
+                value={formData.contactNumber} 
                 onChange={handleChange}
-                className="w-full border rounded-md p-2"
+                className="w-full border rounded-md p-2" 
               />
             ) : (
-              <p className="py-2">${formData.price}</p>
+              <p className="py-2">{formData.contactNumber || 'Not specified'}</p>
             )}
           </div>
-
+          
           <div>
-            <label className="block text-gray-700 mb-1">Category</label>
+            <label className="block text-gray-700 mb-1">Workplace/Hospital</label>
             {editMode ? (
-              <input
-                type="text"
-                name="category"
-                value={formData.category}
+              <input 
+                type="text" 
+                name="workplace" 
+                value={formData.workplace} 
                 onChange={handleChange}
-                className="w-full border rounded-md p-2"
+                className="w-full border rounded-md p-2" 
               />
             ) : (
-              <p className="py-2">{formData.category || "Not specified"}</p>
+              <p className="py-2">{formData.workplace || 'Not specified'}</p>
             )}
           </div>
         </div>
-
-        <div className="mb-6">
-          <label className="block text-gray-700 mb-1">Description</label>
-          {editMode ? (
-            <textarea
-              name="description"
-              value={formData.description}
-              onChange={handleChange}
-              className="w-full border rounded-md p-2"
-              rows="3"
-            />
-          ) : (
-            <p className="py-2">{formData.description || "Not specified"}</p>
-          )}
+        
+        <h3 className="font-medium mb-2">Address Information</h3>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div>
+            <label className="block text-gray-700 mb-1">Clinic/Location</label>
+            {editMode ? (
+              <input 
+                type="text" 
+                name="clinic" 
+                value={formData.address.clinic} 
+                onChange={handleAddressChange}
+                className="w-full border rounded-md p-2" 
+              />
+            ) : (
+              <p className="py-2">{formData.address.clinic || 'Not specified'}</p>
+            )}
+          </div>
+          
+          <div>
+            <label className="block text-gray-700 mb-1">District</label>
+            {editMode ? (
+              <input 
+                type="text" 
+                name="district" 
+                value={formData.address.district} 
+                onChange={handleAddressChange}
+                className="w-full border rounded-md p-2" 
+              />
+            ) : (
+              <p className="py-2">{formData.address.district || 'Not specified'}</p>
+            )}
+          </div>
+          
+          <div>
+            <label className="block text-gray-700 mb-1">County/City</label>
+            {editMode ? (
+              <input 
+                type="text" 
+                name="county" 
+                value={formData.address.county} 
+                onChange={handleAddressChange}
+                className="w-full border rounded-md p-2" 
+              />
+            ) : (
+              <p className="py-2">{formData.address.county || 'Not specified'}</p>
+            )}
+          </div>
         </div>
       </div>
-
+      
       <div className="bg-white rounded-lg shadow-sm p-6">
         <h3 className="text-lg font-medium mb-4">Availability Settings</h3>
-
-        <div className="mb-6">
-          <h4 className="font-medium mb-2">Working Hours</h4>
-          {editMode ? (
-            <div className="flex items-center gap-2">
-              <div>
-                <label className="block text-gray-700 text-sm mb-1">
-                  Start Time
-                </label>
-                <input
-                  type="time"
-                  name="startTime"
-                  value={formData.startTime}
-                  onChange={handleChange}
-                  className="border rounded-md p-2"
-                />
-              </div>
-              <span className="mt-6">to</span>
-              <div>
-                <label className="block text-gray-700 text-sm mb-1">
-                  End Time
-                </label>
-                <input
-                  type="time"
-                  name="endTime"
-                  value={formData.endTime}
-                  onChange={handleChange}
-                  className="border rounded-md p-2"
-                />
-              </div>
-            </div>
-          ) : (
-            <p className="py-2">
-              {formData.startTime} to {formData.endTime}
-            </p>
-          )}
-        </div>
-
+        
         <div className="mb-6">
           <h4 className="font-medium mb-2">Working Days</h4>
           {editMode ? (
             <div className="flex flex-wrap gap-2">
-              {Object.entries(formData.workingDays).map(([day, isWorking]) => (
+              {Object.keys(formData.workingDays).map((day) => (
                 <button
                   key={day}
-                  onClick={() => handleWorkingDaysChange(day)}
+                  onClick={() => handleDayToggle(day)}
                   type="button"
                   className={`py-2 px-3 rounded-md ${
-                    isWorking
-                      ? "bg-blue-500 text-white"
-                      : "bg-gray-200 text-gray-700"
+                    formData.workingDays[day] 
+                      ? 'bg-blue-500 text-white' 
+                      : 'bg-gray-200 text-gray-700'
                   }`}
                 >
                   {day.charAt(0).toUpperCase() + day.slice(1)}
@@ -329,13 +282,13 @@ const ServiceDetails = ({ userData }) => {
             </div>
           ) : (
             <div className="flex flex-wrap gap-2">
-              {Object.entries(formData.workingDays).map(([day, isWorking]) => (
+              {Object.keys(formData.workingDays).map((day) => (
                 <span
                   key={day}
                   className={`py-2 px-3 rounded-md ${
-                    isWorking
-                      ? "bg-blue-500 text-white"
-                      : "bg-gray-200 text-gray-700"
+                    formData.workingDays[day] 
+                      ? 'bg-blue-500 text-white' 
+                      : 'bg-gray-200 text-gray-700'
                   }`}
                 >
                   {day.charAt(0).toUpperCase() + day.slice(1)}
@@ -343,6 +296,72 @@ const ServiceDetails = ({ userData }) => {
               ))}
             </div>
           )}
+        </div>
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+          <div>
+            <h4 className="font-medium mb-2">Working Hours</h4>
+            {editMode ? (
+              <div className="flex items-center gap-2">
+                <div>
+                  <label className="block text-gray-700 text-sm mb-1">Start Time</label>
+                  <input 
+                    type="time" 
+                    name="start" 
+                    value={formData.workHours.start} 
+                    onChange={handleTimeChange}
+                    className="border rounded-md p-2" 
+                  />
+                </div>
+                <span className="mt-6">to</span>
+                <div>
+                  <label className="block text-gray-700 text-sm mb-1">End Time</label>
+                  <input 
+                    type="time" 
+                    name="end" 
+                    value={formData.workHours.end} 
+                    onChange={handleTimeChange}
+                    className="border rounded-md p-2" 
+                  />
+                </div>
+              </div>
+            ) : (
+              <p className="py-2">
+                {formData.workHours.start} to {formData.workHours.end}
+              </p>
+            )}
+          </div>
+          
+          <div>
+            <h4 className="font-medium mb-2">Time Slots</h4>
+            {editMode ? (
+              <div>
+                <label className="block text-gray-700 text-sm mb-1">Number of Time Slots</label>
+                <input 
+                  type="number" 
+                  min="1" 
+                  max="12" 
+                  value={formData.timePackages} 
+                  onChange={handleTimePackagesChange}
+                  className="border rounded-md p-2 w-full" 
+                />
+              </div>
+            ) : (
+              <p className="py-2">
+                {formData.timePackages} slots per working day
+              </p>
+            )}
+          </div>
+        </div>
+        
+        <div className="bg-blue-50 p-4 rounded-md">
+          <h4 className="font-medium mb-2">Time Slot Summary</h4>
+          <p className="text-sm text-gray-700">
+            Working hours: {formData.workHours.start} - {formData.workHours.end}
+          </p>
+          <p className="text-sm text-gray-700">
+            {calculateTimeSlotDuration(formData.workHours.start, formData.workHours.end, formData.timePackages)}
+          </p>
         </div>
       </div>
     </div>
