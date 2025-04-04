@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import com.example.Book.dto.BookingDTO;
 import com.example.Book.dto.ScheduleDTO;
 import com.example.Book.dto.ServiceDTO;
+import com.example.Book.dto.ServiceDateTimeDTO;
 import com.example.Book.dto.ServiceProviderDTO;
 import com.example.Book.model.Booking;
 import com.example.Book.model.Consumer;
@@ -18,6 +19,7 @@ import com.example.Book.model.Services;
 import com.example.Book.repo.BookingRepository;
 import com.example.Book.repo.ConsumerRepository;
 import com.example.Book.repo.ScheduleRepository;
+import com.example.Book.repo.ServiceDateTimeRepository;
 import com.example.Book.repo.ServiceProviderRepository;
 import com.example.Book.repo.ServiceRepository;
 
@@ -45,6 +47,9 @@ public class BookingService {
     public List<Booking> getAllBookings() {
         return bookingRepository.findAll();
     }
+    @Autowired
+    private ServiceDateTimeRepository serviceDateTimeRepository;
+
 
     public List<ServiceProviderDTO> getAllServiceProvidersWithServices() {
         // Get all service providers
@@ -80,14 +85,10 @@ public class BookingService {
 
     private ServiceDTO convertToServiceDTO(Services service) {
         return new ServiceDTO(
-                service.getService_id(),
+                service.getServiceId(),
                 service.getName(),
                 service.getSpecialization(),
-                service.getDuration(),
                 service.getPrice(),
-                service.getStartTime(),
-                service.getEndTime(),
-                service.getDate(),
                 service.getDescription(),
                 service.getCategory()
         );
@@ -160,5 +161,9 @@ public class BookingService {
 
         // Save and return the schedule
         return scheduleRepository.save(schedule);
+    }
+
+    public List<ServiceDateTimeDTO> getServiceDateTimeByProviderId(Long providerId) {
+        return serviceDateTimeRepository.findByProviderId(providerId);
     }
 }

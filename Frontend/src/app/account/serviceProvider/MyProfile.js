@@ -4,11 +4,15 @@ import { toast } from "react-toastify";
 import { Pencil } from "lucide-react";
 import styled from "styled-components";
 
-// Styled components for the profile
+// Styled components
 const ProfileContainer = styled.div`
   width: 80%;
   margin: 30px auto;
   padding: 20px;
+
+  @media (max-width: 768px) {
+    width: 95%;
+  }
 `;
 
 const ProfileCard = styled.div`
@@ -17,6 +21,11 @@ const ProfileCard = styled.div`
   border-radius: 12px;
   margin-bottom: 20px;
   box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+
+  @media (max-width: 768px) {
+    flex-direction: column;
+    align-items: flex-start;
+  }
 `;
 
 const ProfileDetails = styled.div`
@@ -28,6 +37,11 @@ const ProfileDetails = styled.div`
     color: #222;
     font-size: 16px;
   }
+
+  @media (max-width: 768px) {
+    margin-left: 0;
+    margin-top: 10px;
+  }
 `;
 
 const Bold = styled.span`
@@ -35,7 +49,7 @@ const Bold = styled.span`
   font-size: 17px;
 `;
 
-const EditIcon = styled.button`
+const EditIcon = styled.div`
   cursor: pointer;
   color: #333;
   display: flex;
@@ -72,18 +86,64 @@ const Info = styled.div`
     color: #333;
     font-size: 16px;
   }
+
+  @media (max-width: 768px) {
+    div {
+      width: 100%;
+    }
+  }
 `;
 
-const Email = styled.p`
+const Email = styled.a`
   color: #0056b3;
   font-weight: bold;
   text-decoration: none;
+`;
+
+const ProfileImageContainer = styled.div`
+  position: relative;
+  display: inline-block;
+  margin-bottom: 20px;
+`;
+
+const ProfileImage = styled.img`
+  width: 150px;
+  height: 150px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 4px solid white;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+`;
+
+const ImageUploadButton = styled.label`
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  background: #0056b3;
+  color: white;
+  padding: 8px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  transition: background-color 0.2s;
+
+  &:hover {
+    background: #003d82;
+  }
+
+  input[type="file"] {
+    display: none;
+  }
 `;
 
 const MyProfile = ({ userData, setUserData }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [editedData, setEditedData] = useState({ ...userData });
   const [loading, setLoading] = useState(false);
+  const [imageUploadLoading, setImageUploadLoading] = useState(false);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -140,10 +200,13 @@ const MyProfile = ({ userData, setUserData }) => {
         throw new Error("No response received from server");
       }
 
-      setUserData((prev) => ({
-        ...prev,
+      // Update both local state and localStorage
+      const updatedUserData = {
+        ...userData,
         ...response,
-      }));
+      };
+      setUserData(updatedUserData);
+      localStorage.setItem("userInfo", JSON.stringify(updatedUserData));
 
       setIsEditing(false);
       toast.success("Profile updated successfully!");
@@ -176,23 +239,118 @@ const MyProfile = ({ userData, setUserData }) => {
     }
   };
 
+  const handleImageUpload = async (event) => {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    // Validate file type
+    if (!file.type.startsWith("image/")) {
+      toast.error("Please upload an image file");
+      return;
+    }
+
+    // Validate file size (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error("Image size should be less than 5MB");
+      return;
+    }
+
+    setImageUploadLoading(true);
+    const formData = new FormData();
+    formData.append("file", file);
+
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        toast.error("Authentication required. Please login again.");
+        window.location.href = "/service-provider/login";
+        return;
+      }
+
+      // Ensure token has the correct format
+      const formattedToken = token.startsWith("Bearer ")
+        ? token
+        : `Bearer ${token}`;
+
+      const response = await fetch(
+        "http://localhost:8081/api/upload/profile-image",
+        {
+          method: "POST",
+          headers: {
+            Authorization: formattedToken,
+            // Don't set Content-Type header - let browser set it for FormData
+          },
+          credentials: "include",
+          body: formData,
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to upload image");
+      }
+
+      const data = await response.json();
+
+      // Construct the complete URL for the image
+      const imageUrl = `http://localhost:8081${data.imageUrl}`;
+
+      // Update the profile image URL in the edited data
+      setEditedData((prev) => ({
+        ...prev,
+        profileImage: imageUrl,
+      }));
+
+      // Update the user data
+      setUserData((prev) => ({
+        ...prev,
+        profileImage: imageUrl,
+      }));
+
+      toast.success("Profile image updated successfully!");
+    } catch (error) {
+      console.error("Image upload error:", error);
+      toast.error("Failed to upload image. Please try again.");
+    } finally {
+      setImageUploadLoading(false);
+    }
+  };
+
+  // Add a function to handle image loading errors
+  const handleImageError = (e) => {
+    e.target.onerror = null; // Prevent infinite loop
+    e.target.src = "/images/default-avatar.png"; // Use a local default avatar
+  };
+
   return (
     <ProfileContainer>
       {/* Profile Card */}
       <ProfileCard>
         <div className="flex items-center w-full">
-          <img
-            src={userData.profileImage || "/default-avatar.png"}
-            alt="Profile"
-            className="w-20 h-20 rounded-full object-cover border-4 border-white"
-          />
+          <ProfileImageContainer>
+            <ProfileImage
+              src={userData.profileImage || "/images/default-avatar.png"}
+              alt="Profile"
+              onError={handleImageError}
+            />
+            <ImageUploadButton>
+              <input
+                type="file"
+                accept="image/*"
+                onChange={handleImageUpload}
+                disabled={imageUploadLoading}
+              />
+              <Pencil size={16} />
+            </ImageUploadButton>
+          </ProfileImageContainer>
           <ProfileDetails>
             <p>
               <Bold>
                 Name: {userData.firstName} {userData.lastName}
               </Bold>
             </p>
-            <p>Bio: {userData.bio || "Not specified"}</p>
+            <p>
+              <Bold>Bio: {userData.bio || "Not specified"}</Bold>
+            </p>
           </ProfileDetails>
           {!isEditing && (
             <EditIcon onClick={() => setIsEditing(true)}>
@@ -260,7 +418,9 @@ const MyProfile = ({ userData, setUserData }) => {
                 disabled
               />
             ) : (
-              <Email>{userData.email || "Not specified"}</Email>
+              <p>
+                <Email>{userData.email || "Not specified"}</Email>
+              </p>
             )}
           </div>
 
@@ -310,7 +470,9 @@ const MyProfile = ({ userData, setUserData }) => {
                 rows="3"
               />
             ) : (
-              <p>{userData.bio || "Not specified"}</p>
+              <p>
+                <Bold>{userData.bio || "Not specified"}</Bold>
+              </p>
             )}
           </div>
         </Info>
@@ -339,7 +501,9 @@ const MyProfile = ({ userData, setUserData }) => {
                 rows="2"
               />
             ) : (
-              <p>{userData.address || "Not specified"}</p>
+              <p>
+                <Bold>{userData.address || "Not specified"}</Bold>
+              </p>
             )}
           </div>
         </Info>

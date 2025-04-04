@@ -2,6 +2,13 @@ package com.example.Book.controller;
 
 import java.util.List;
 
+
+import com.example.Book.dto.BookingDTO;
+import com.example.Book.dto.ScheduleDTO;
+import com.example.Book.dto.ServiceDateTimeDTO;
+import com.example.Book.model.Booking;
+import com.example.Book.model.Schedule;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -13,11 +20,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.example.Book.dto.BookingDTO;
-import com.example.Book.dto.ScheduleDTO;
+
 import com.example.Book.dto.ServiceProviderDTO;
-import com.example.Book.model.Booking;
-import com.example.Book.model.Schedule;
 import com.example.Book.service.BookingService;
 
 @RestController
@@ -56,6 +60,11 @@ public class BookingController {
     public ResponseEntity<Schedule> createSchedule(@RequestBody ScheduleDTO scheduleDTO) {
         Schedule savedSchedule = bookingService.createSchedule(scheduleDTO);
         return new ResponseEntity<>(savedSchedule, HttpStatus.CREATED);
+    }
+
+    @GetMapping("/service-datetime/{providerId}")
+    public List<ServiceDateTimeDTO> getServiceDateTimesByProviderId(@PathVariable Long providerId) {
+        return bookingService.getServiceDateTimeByProviderId(providerId);
     }
 
 }

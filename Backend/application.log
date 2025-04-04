@@ -1,0 +1,215 @@
+2025-04-04 22:17:56 - Initializing Spring DispatcherServlet 'dispatcherServlet'
+2025-04-04 22:17:56 - Initializing Servlet 'dispatcherServlet'
+2025-04-04 22:17:56 - Detected StandardServletMultipartResolver
+2025-04-04 22:17:56 - Detected AcceptHeaderLocaleResolver
+2025-04-04 22:17:56 - Detected FixedThemeResolver
+2025-04-04 22:17:56 - Detected org.springframework.web.servlet.view.DefaultRequestToViewNameTranslator@398c7868
+2025-04-04 22:17:56 - Detected org.springframework.web.servlet.support.SessionFlashMapManager@205fd302
+2025-04-04 22:17:56 - enableLoggingRequestDetails='false': request parameters and headers will be masked to prevent unsafe logging of potentially sensitive data
+2025-04-04 22:17:56 - Completed initialization in 6 ms
+2025-04-04 22:17:56 - Securing OPTIONS /api/users/profile
+2025-04-04 22:17:57 - Securing GET /api/users/profile
+2025-04-04 22:17:57 - Securing GET /api/users/profile
+2025-04-04 22:18:01 - Securing GET /actuator/health
+2025-04-04 22:18:01 - Securing GET /actuator/health
+2025-04-04 22:18:01 - Set SecurityContextHolder to anonymous SecurityContext
+2025-04-04 22:18:01 - Set SecurityContextHolder to anonymous SecurityContext
+2025-04-04 22:18:01 - Pre-authenticated entry point called. Rejecting access
+2025-04-04 22:18:01 - Pre-authenticated entry point called. Rejecting access
+2025-04-04 22:18:01 - Securing GET /error
+2025-04-04 22:18:01 - Securing GET /error
+2025-04-04 22:18:01 - Set SecurityContextHolder to anonymous SecurityContext
+2025-04-04 22:18:01 - Set SecurityContextHolder to anonymous SecurityContext
+2025-04-04 22:18:01 - Pre-authenticated entry point called. Rejecting access
+2025-04-04 22:18:01 - Pre-authenticated entry point called. Rejecting access
+2025-04-04 22:18:18 - Securing OPTIONS /auth/service-provider/register
+2025-04-04 22:18:18 - Securing POST /auth/service-provider/register
+2025-04-04 22:18:18 - Set SecurityContextHolder to anonymous SecurityContext
+2025-04-04 22:18:18 - Secured POST /auth/service-provider/register
+2025-04-04 22:18:18 - POST "/auth/service-provider/register", parameters={}
+2025-04-04 22:18:18 - Mapped to com.example.Book.controller.AuthController#registerProvider(ServiceProvider)
+2025-04-04 22:18:18 - Opening JPA EntityManager in OpenEntityManagerInViewInterceptor
+2025-04-04 22:18:18 - Read "application/json;charset=UTF-8" to [com.example.Book.model.ServiceProvider@346914b7]
+2025-04-04 22:18:19 - Found thread-bound EntityManager [SessionImpl(1999904936<open>)] for JPA transaction
+2025-04-04 22:18:19 - Creating new transaction with name [org.springframework.data.jpa.repository.support.SimpleJpaRepository.save]: PROPAGATION_REQUIRED,ISOLATION_DEFAULT
+2025-04-04 22:18:19 - Exposing JPA transaction as JDBC [org.springframework.orm.jpa.vendor.HibernateJpaDialect$HibernateConnectionHandle@4b713e7b]
+2025-04-04 22:18:19 - Initiating transaction commit
+2025-04-04 22:18:19 - Committing JPA transaction on EntityManager [SessionImpl(1999904936<open>)]
+2025-04-04 22:18:19 - Not closing pre-bound JPA EntityManager after transaction
+2025-04-04 22:18:19 - Using 'application/json', given [application/json] and supported [text/plain, */*, application/json, application/*+json, application/xml;charset=UTF-8, text/xml;charset=UTF-8, application/*+xml;charset=UTF-8]
+2025-04-04 22:18:19 - Writing ["Service Provider registered successfully!"]
+2025-04-04 22:18:19 - Closing JPA EntityManager in OpenEntityManagerInViewInterceptor
+2025-04-04 22:18:19 - Completed 200 OK
+2025-04-04 22:18:26 - Securing OPTIONS /auth/login
+2025-04-04 22:18:26 - Securing POST /auth/login
+2025-04-04 22:18:26 - Set SecurityContextHolder to anonymous SecurityContext
+2025-04-04 22:18:26 - Secured POST /auth/login
+2025-04-04 22:18:26 - POST "/auth/login", parameters={}
+2025-04-04 22:18:26 - Mapped to com.example.Book.controller.AuthController#login(Map)
+2025-04-04 22:18:26 - Opening JPA EntityManager in OpenEntityManagerInViewInterceptor
+2025-04-04 22:18:26 - Read "application/json;charset=UTF-8" to [{email=eranda@gmail.com, password=123456, role=service_providers}]
+2025-04-04 22:18:26 - Using 'application/json', given [application/json] and supported [application/json, application/*+json, application/xml;charset=UTF-8, text/xml;charset=UTF-8, application/*+xml;charset=UTF-8]
+2025-04-04 22:18:26 - Writing [{role=service-provider, user=com.example.Book.model.ServiceProvider@266ad05f, token=Bearer eyJhbGciO (truncated)...]
+2025-04-04 22:18:26 - Closing JPA EntityManager in OpenEntityManagerInViewInterceptor
+2025-04-04 22:18:26 - Completed 200 OK
+2025-04-04 22:18:26 - Securing OPTIONS /api/users/profile
+2025-04-04 22:18:26 - Securing OPTIONS /api/service-providers/profile
+2025-04-04 22:18:26 - Securing OPTIONS /api/users/profile
+2025-04-04 22:18:27 - Securing GET /api/users/profile
+2025-04-04 22:18:27 - Securing GET /api/service-providers/profile
+2025-04-04 22:18:27 - Securing GET /api/users/profile
+2025-04-04 22:18:27 - Creating new EntityManager for shared EntityManager invocation
+2025-04-04 22:18:27 - Creating new EntityManager for shared EntityManager invocation
+2025-04-04 22:18:27 - Creating new EntityManager for shared EntityManager invocation
+2025-04-04 22:18:27 - Creating new EntityManager for shared EntityManager invocation
+2025-04-04 22:18:27 - Creating new EntityManager for shared EntityManager invocation
+2025-04-04 22:18:27 - Creating new EntityManager for shared EntityManager invocation
+2025-04-04 22:18:27 - Secured GET /api/users/profile
+2025-04-04 22:18:27 - Secured GET /api/service-providers/profile
+2025-04-04 22:18:27 - Secured GET /api/users/profile
+2025-04-04 22:18:27 - GET "/api/service-providers/profile", parameters={}
+2025-04-04 22:18:27 - GET "/api/users/profile", parameters={}
+2025-04-04 22:18:27 - GET "/api/users/profile", parameters={}
+2025-04-04 22:18:27 - Mapped to com.example.Book.controller.UserController#getUserProfile(String)
+2025-04-04 22:18:27 - Mapped to com.example.Book.controller.ServiceProviderController#getServiceProviderProfile(String)
+2025-04-04 22:18:27 - Mapped to com.example.Book.controller.UserController#getUserProfile(String)
+2025-04-04 22:18:27 - Opening JPA EntityManager in OpenEntityManagerInViewInterceptor
+2025-04-04 22:18:27 - Opening JPA EntityManager in OpenEntityManagerInViewInterceptor
+2025-04-04 22:18:27 - Opening JPA EntityManager in OpenEntityManagerInViewInterceptor
+2025-04-04 22:18:27 - Using 'application/json', given [application/json] and supported [application/json, application/*+json, application/xml;charset=UTF-8, text/xml;charset=UTF-8, application/*+xml;charset=UTF-8]
+2025-04-04 22:18:27 - Writing [{username=Eranda, profileImage=, contact=, isActive=false, experience=0, firstName=, address=, lastN (truncated)...]
+2025-04-04 22:18:27 - Using 'application/json', given [application/json] and supported [application/json, application/*+json, application/xml;charset=UTF-8, text/xml;charset=UTF-8, application/*+xml;charset=UTF-8]
+2025-04-04 22:18:27 - Using 'application/json', given [application/json] and supported [application/json, application/*+json, application/xml;charset=UTF-8, text/xml;charset=UTF-8, application/*+xml;charset=UTF-8]
+2025-04-04 22:18:27 - Writing [{username=Eranda, role=service-provider}]
+2025-04-04 22:18:27 - Writing [{username=Eranda, role=service-provider}]
+2025-04-04 22:18:27 - Closing JPA EntityManager in OpenEntityManagerInViewInterceptor
+2025-04-04 22:18:27 - Closing JPA EntityManager in OpenEntityManagerInViewInterceptor
+2025-04-04 22:18:27 - Closing JPA EntityManager in OpenEntityManagerInViewInterceptor
+2025-04-04 22:18:27 - Completed 200 OK
+2025-04-04 22:18:27 - Completed 200 OK
+2025-04-04 22:18:27 - Completed 200 OK
+2025-04-04 22:18:27 - Securing GET /api/service-providers/profile
+2025-04-04 22:18:27 - Creating new EntityManager for shared EntityManager invocation
+2025-04-04 22:18:27 - Creating new EntityManager for shared EntityManager invocation
+2025-04-04 22:18:27 - Secured GET /api/service-providers/profile
+2025-04-04 22:18:27 - GET "/api/service-providers/profile", parameters={}
+2025-04-04 22:18:27 - Mapped to com.example.Book.controller.ServiceProviderController#getServiceProviderProfile(String)
+2025-04-04 22:18:27 - Opening JPA EntityManager in OpenEntityManagerInViewInterceptor
+2025-04-04 22:18:27 - Using 'application/json', given [application/json] and supported [application/json, application/*+json, application/xml;charset=UTF-8, text/xml;charset=UTF-8, application/*+xml;charset=UTF-8]
+2025-04-04 22:18:27 - Writing [{username=Eranda, profileImage=, contact=, isActive=false, experience=0, firstName=, address=, lastN (truncated)...]
+2025-04-04 22:18:27 - Closing JPA EntityManager in OpenEntityManagerInViewInterceptor
+2025-04-04 22:18:27 - Completed 200 OK
+2025-04-04 22:18:29 - Securing OPTIONS /api/service-providers/services
+2025-04-04 22:18:29 - Securing GET /api/service-providers/services
+2025-04-04 22:18:29 - Creating new EntityManager for shared EntityManager invocation
+2025-04-04 22:18:29 - Creating new EntityManager for shared EntityManager invocation
+2025-04-04 22:18:29 - Secured GET /api/service-providers/services
+2025-04-04 22:18:29 - GET "/api/service-providers/services", parameters={}
+2025-04-04 22:18:29 - Mapped to com.example.Book.controller.ServiceController#getProviderServices(String)
+2025-04-04 22:18:29 - Opening JPA EntityManager in OpenEntityManagerInViewInterceptor
+2025-04-04 22:18:29 - Found thread-bound EntityManager [SessionImpl(1884971274<open>)] for JPA transaction
+2025-04-04 22:18:29 - Creating new transaction with name [org.springframework.data.jpa.repository.support.SimpleJpaRepository.findById]: PROPAGATION_REQUIRED,ISOLATION_DEFAULT,readOnly
+2025-04-04 22:18:29 - Setting JDBC Connection [HikariProxyConnection@2142397351 wrapping com.mysql.cj.jdbc.ConnectionImpl@17e9bd96] read-only
+2025-04-04 22:18:29 - Exposing JPA transaction as JDBC [org.springframework.orm.jpa.vendor.HibernateJpaDialect$HibernateConnectionHandle@466c4cf8]
+2025-04-04 22:18:30 - Initiating transaction commit
+2025-04-04 22:18:30 - Committing JPA transaction on EntityManager [SessionImpl(1884971274<open>)]
+2025-04-04 22:18:30 - Resetting read-only flag of JDBC Connection [HikariProxyConnection@2142397351 wrapping com.mysql.cj.jdbc.ConnectionImpl@17e9bd96]
+2025-04-04 22:18:30 - Not closing pre-bound JPA EntityManager after transaction
+2025-04-04 22:18:30 - Using 'application/json', given [application/json] and supported [application/json, application/*+json, application/xml;charset=UTF-8, text/xml;charset=UTF-8, application/*+xml;charset=UTF-8]
+2025-04-04 22:18:30 - Writing [[]]
+2025-04-04 22:18:30 - Closing JPA EntityManager in OpenEntityManagerInViewInterceptor
+2025-04-04 22:18:30 - Completed 200 OK
+2025-04-04 22:18:30 - Securing GET /api/service-providers/services
+2025-04-04 22:18:30 - Creating new EntityManager for shared EntityManager invocation
+2025-04-04 22:18:30 - Creating new EntityManager for shared EntityManager invocation
+2025-04-04 22:18:30 - Secured GET /api/service-providers/services
+2025-04-04 22:18:30 - GET "/api/service-providers/services", parameters={}
+2025-04-04 22:18:30 - Mapped to com.example.Book.controller.ServiceController#getProviderServices(String)
+2025-04-04 22:18:30 - Opening JPA EntityManager in OpenEntityManagerInViewInterceptor
+2025-04-04 22:18:30 - Found thread-bound EntityManager [SessionImpl(2110597636<open>)] for JPA transaction
+2025-04-04 22:18:30 - Creating new transaction with name [org.springframework.data.jpa.repository.support.SimpleJpaRepository.findById]: PROPAGATION_REQUIRED,ISOLATION_DEFAULT,readOnly
+2025-04-04 22:18:30 - Setting JDBC Connection [HikariProxyConnection@1810014540 wrapping com.mysql.cj.jdbc.ConnectionImpl@574ec685] read-only
+2025-04-04 22:18:30 - Exposing JPA transaction as JDBC [org.springframework.orm.jpa.vendor.HibernateJpaDialect$HibernateConnectionHandle@9b2bab5]
+2025-04-04 22:18:30 - Initiating transaction commit
+2025-04-04 22:18:30 - Committing JPA transaction on EntityManager [SessionImpl(2110597636<open>)]
+2025-04-04 22:18:30 - Resetting read-only flag of JDBC Connection [HikariProxyConnection@1810014540 wrapping com.mysql.cj.jdbc.ConnectionImpl@574ec685]
+2025-04-04 22:18:30 - Not closing pre-bound JPA EntityManager after transaction
+2025-04-04 22:18:30 - Using 'application/json', given [application/json] and supported [application/json, application/*+json, application/xml;charset=UTF-8, text/xml;charset=UTF-8, application/*+xml;charset=UTF-8]
+2025-04-04 22:18:30 - Writing [[]]
+2025-04-04 22:18:30 - Closing JPA EntityManager in OpenEntityManagerInViewInterceptor
+2025-04-04 22:18:30 - Completed 200 OK
+2025-04-04 22:19:08 - Securing OPTIONS /api/service-providers/services
+2025-04-04 22:19:08 - Securing PUT /api/service-providers/services
+2025-04-04 22:19:08 - Creating new EntityManager for shared EntityManager invocation
+2025-04-04 22:19:08 - Creating new EntityManager for shared EntityManager invocation
+2025-04-04 22:19:08 - Secured PUT /api/service-providers/services
+2025-04-04 22:19:08 - PUT "/api/service-providers/services", parameters={}
+2025-04-04 22:19:08 - Mapped to com.example.Book.controller.ServiceController#updateService(Map, String)
+2025-04-04 22:19:08 - Opening JPA EntityManager in OpenEntityManagerInViewInterceptor
+2025-04-04 22:19:08 - Read "application/json;charset=UTF-8" to [{name=Eranda, specialization=Jayasinghe , price=1000, description=Math, category=Teacher, workHours= (truncated)...]
+2025-04-04 22:19:08 - Found thread-bound EntityManager [SessionImpl(1338518185<open>)] for JPA transaction
+2025-04-04 22:19:08 - Creating new transaction with name [org.springframework.data.jpa.repository.support.SimpleJpaRepository.findById]: PROPAGATION_REQUIRED,ISOLATION_DEFAULT,readOnly
+2025-04-04 22:19:08 - Setting JDBC Connection [HikariProxyConnection@1030498907 wrapping com.mysql.cj.jdbc.ConnectionImpl@17e9bd96] read-only
+2025-04-04 22:19:08 - Exposing JPA transaction as JDBC [org.springframework.orm.jpa.vendor.HibernateJpaDialect$HibernateConnectionHandle@3fac5a90]
+2025-04-04 22:19:08 - Initiating transaction commit
+2025-04-04 22:19:08 - Committing JPA transaction on EntityManager [SessionImpl(1338518185<open>)]
+2025-04-04 22:19:08 - Resetting read-only flag of JDBC Connection [HikariProxyConnection@1030498907 wrapping com.mysql.cj.jdbc.ConnectionImpl@17e9bd96]
+2025-04-04 22:19:08 - Not closing pre-bound JPA EntityManager after transaction
+2025-04-04 22:19:08 - Found thread-bound EntityManager [SessionImpl(1338518185<open>)] for JPA transaction
+2025-04-04 22:19:08 - Creating new transaction with name [org.springframework.data.jpa.repository.support.SimpleJpaRepository.save]: PROPAGATION_REQUIRED,ISOLATION_DEFAULT
+2025-04-04 22:19:08 - Exposing JPA transaction as JDBC [org.springframework.orm.jpa.vendor.HibernateJpaDialect$HibernateConnectionHandle@638a6f98]
+2025-04-04 22:19:08 - Initiating transaction commit
+2025-04-04 22:19:08 - Committing JPA transaction on EntityManager [SessionImpl(1338518185<open>)]
+2025-04-04 22:19:08 - Not closing pre-bound JPA EntityManager after transaction
+2025-04-04 22:19:08 - Found thread-bound EntityManager [SessionImpl(1338518185<open>)] for JPA transaction
+2025-04-04 22:19:08 - Creating new transaction with name [org.springframework.data.jpa.repository.support.SimpleJpaRepository.save]: PROPAGATION_REQUIRED,ISOLATION_DEFAULT
+2025-04-04 22:19:08 - Exposing JPA transaction as JDBC [org.springframework.orm.jpa.vendor.HibernateJpaDialect$HibernateConnectionHandle@9f144f9]
+2025-04-04 22:19:08 - Initiating transaction commit
+2025-04-04 22:19:08 - Committing JPA transaction on EntityManager [SessionImpl(1338518185<open>)]
+2025-04-04 22:19:08 - Not closing pre-bound JPA EntityManager after transaction
+2025-04-04 22:19:08 - Using 'application/json', given [application/json] and supported [application/json, application/*+json, application/xml;charset=UTF-8, text/xml;charset=UTF-8, application/*+xml;charset=UTF-8]
+2025-04-04 22:19:08 - Writing [com.example.Book.model.Services@10eb9f00]
+2025-04-04 22:19:08 - Closing JPA EntityManager in OpenEntityManagerInViewInterceptor
+2025-04-04 22:19:08 - Completed 200 OK
+2025-04-04 22:19:20 - Securing OPTIONS /api/upload/profile-image
+2025-04-04 22:19:20 - Securing POST /api/upload/profile-image
+2025-04-04 22:19:20 - Creating new EntityManager for shared EntityManager invocation
+2025-04-04 22:19:20 - Creating new EntityManager for shared EntityManager invocation
+2025-04-04 22:19:20 - Secured POST /api/upload/profile-image
+2025-04-04 22:19:20 - POST "/api/upload/profile-image", parameters={multipart}
+2025-04-04 22:19:21 - Mapped to com.example.Book.controller.FileUploadController#uploadProfileImage(String, MultipartFile)
+2025-04-04 22:19:21 - Opening JPA EntityManager in OpenEntityManagerInViewInterceptor
+2025-04-04 22:19:21 - Received file upload request with token: Bearer eyJhbGciOiJIU...
+2025-04-04 22:19:21 - Token validated for user: eranda@gmail.com
+2025-04-04 22:19:21 - File uploaded successfully for user: eranda@gmail.com
+2025-04-04 22:19:21 - Using 'application/json', given [*/*] and supported [application/json, application/*+json, application/xml;charset=UTF-8, text/xml;charset=UTF-8, application/*+xml;charset=UTF-8]
+2025-04-04 22:19:21 - Writing [{imageUrl=/uploads/profile-images/097f185d-099a-4b38-a3c5-711992900783.png}]
+2025-04-04 22:19:21 - Closing JPA EntityManager in OpenEntityManagerInViewInterceptor
+2025-04-04 22:19:21 - Completed 200 OK
+2025-04-04 22:19:21 - Securing GET /uploads/profile-images/097f185d-099a-4b38-a3c5-711992900783.png
+2025-04-04 22:19:21 - Set SecurityContextHolder to anonymous SecurityContext
+2025-04-04 22:19:21 - Secured GET /uploads/profile-images/097f185d-099a-4b38-a3c5-711992900783.png
+2025-04-04 22:19:21 - GET "/uploads/profile-images/097f185d-099a-4b38-a3c5-711992900783.png", parameters={}
+2025-04-04 22:19:21 - Mapped to ResourceHttpRequestHandler [URL [file:uploads/]]
+2025-04-04 22:19:21 - Opening JPA EntityManager in OpenEntityManagerInViewInterceptor
+2025-04-04 22:19:21 - Closing JPA EntityManager in OpenEntityManagerInViewInterceptor
+2025-04-04 22:19:21 - Completed 200 OK
+2025-04-04 22:19:47 - Securing OPTIONS /api/service-providers/profile
+2025-04-04 22:19:47 - Securing PUT /api/service-providers/profile
+2025-04-04 22:19:47 - Creating new EntityManager for shared EntityManager invocation
+2025-04-04 22:19:47 - Creating new EntityManager for shared EntityManager invocation
+2025-04-04 22:19:47 - Secured PUT /api/service-providers/profile
+2025-04-04 22:19:47 - PUT "/api/service-providers/profile", parameters={}
+2025-04-04 22:19:47 - Mapped to com.example.Book.controller.ServiceProviderController#updateServiceProviderProfile(String, Map)
+2025-04-04 22:19:47 - Opening JPA EntityManager in OpenEntityManagerInViewInterceptor
+2025-04-04 22:19:47 - Read "application/json;charset=UTF-8" to [{username=Eranda, email=eranda@gmail.com, contact=123456789, address=No. 50<EOL>Kandy, bio=Teacher, firs (truncated)...]
+2025-04-04 22:19:47 - Found thread-bound EntityManager [SessionImpl(1574650529<open>)] for JPA transaction
+2025-04-04 22:19:47 - Creating new transaction with name [org.springframework.data.jpa.repository.support.SimpleJpaRepository.save]: PROPAGATION_REQUIRED,ISOLATION_DEFAULT
+2025-04-04 22:19:47 - Exposing JPA transaction as JDBC [org.springframework.orm.jpa.vendor.HibernateJpaDialect$HibernateConnectionHandle@16d25984]
+2025-04-04 22:19:47 - Initiating transaction commit
+2025-04-04 22:19:47 - Committing JPA transaction on EntityManager [SessionImpl(1574650529<open>)]
+2025-04-04 22:19:47 - Not closing pre-bound JPA EntityManager after transaction
+2025-04-04 22:19:47 - Using 'application/json', given [application/json] and supported [application/json, application/*+json, application/xml;charset=UTF-8, text/xml;charset=UTF-8, application/*+xml;charset=UTF-8]
+2025-04-04 22:19:47 - Writing [{username=Eranda, profileImage=http://localhost:8081/uploads/profile-images/097f185d-099a-4b38-a3c5- (truncated)...]
+2025-04-04 22:19:47 - Closing JPA EntityManager in OpenEntityManagerInViewInterceptor
+2025-04-04 22:19:47 - Completed 200 OK
