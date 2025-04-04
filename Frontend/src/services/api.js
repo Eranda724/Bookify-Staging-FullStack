@@ -189,8 +189,18 @@ export const loginUser = async (formData) => {
       console.log("Token stored in localStorage:", cleanToken);
 
       if (data.user) {
-        localStorage.setItem("userInfo", JSON.stringify(data.user));
-        console.log("User info stored in localStorage:", data.user);
+        // Ensure the user object has an email field
+        const userInfo = { ...data.user };
+        if (!userInfo.email && formData.email) {
+          userInfo.email = formData.email;
+        }
+        localStorage.setItem("userInfo", JSON.stringify(userInfo));
+        console.log("User info stored in localStorage:", userInfo);
+      } else if (formData.email) {
+        // If no user object is returned but we have the email from the form
+        const userInfo = { email: formData.email };
+        localStorage.setItem("userInfo", JSON.stringify(userInfo));
+        console.log("User info stored in localStorage:", userInfo);
       }
 
       const userRole =

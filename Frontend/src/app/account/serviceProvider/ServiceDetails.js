@@ -1,36 +1,34 @@
 import React, { useState, useEffect } from "react";
-import Navigation from "../../../components/ui/navigation";
 import {
   fetchProviderServices,
   updateProviderService,
 } from "../../../services/api";
+import { toast } from "react-toastify";
+import Navigation from "../../../components/ui/navigation";
 
-const ServiceDetails = ({ serviceData }) => {
+const ServiceDetails = ({ userData }) => {
   const [editMode, setEditMode] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
-    name: serviceData?.name || "",
-    specialization: serviceData?.specialization || "",
-    price: serviceData?.price || 0,
-    description: serviceData?.description || "",
-    category: serviceData?.category || "",
-    workHours: serviceData?.workHours || {
-      start: "08:00",
-      end: "17:00",
-    },
-    workingDays: serviceData?.workingDays || {
-      monday: false,
-      tuesday: false,
-      wednesday: false,
-      thursday: false,
-      friday: false,
+    service_id: null,
+    name: "",
+    specialization: "",
+    duration: 30,
+    price: 0,
+    startTime: "08:00",
+    endTime: "17:00",
+    description: "",
+    category: "",
+    workingDays: {
+      monday: true,
+      tuesday: true,
+      wednesday: true,
+      thursday: true,
+      friday: true,
       saturday: false,
       sunday: false,
     },
-    timePackages: serviceData?.timePackages || 4,
   });
-
-  const [error, setError] = useState(null);
-  const [success, setSuccess] = useState(false);
 
   useEffect(() => {
     loadServiceData();
@@ -38,34 +36,41 @@ const ServiceDetails = ({ serviceData }) => {
 
   const loadServiceData = async () => {
     try {
+      setLoading(true);
       const services = await fetchProviderServices();
       if (services && services.length > 0) {
-        const service = services[0]; // Assuming we're working with the first service
+        // Use the first service or create a new one if none exists
+        const service = services[0];
         setFormData({
+          service_id: service.service_id,
           name: service.name || "",
           specialization: service.specialization || "",
+          duration: service.duration || 30,
           price: service.price || 0,
+          startTime: service.startTime
+            ? new Date(service.startTime).toLocaleTimeString("en-US", {
+                hour12: false,
+                hour: "2-digit",
+                minute: "2-digit",
+              })
+            : "08:00",
+          endTime: service.endTime
+            ? new Date(service.endTime).toLocaleTimeString("en-US", {
+                hour12: false,
+                hour: "2-digit",
+                minute: "2-digit",
+              })
+            : "17:00",
           description: service.description || "",
           category: service.category || "",
-          workHours: {
-            start: service.workHoursStart || "08:00",
-            end: service.workHoursEnd || "17:00",
-          },
-          workingDays: {
-            monday: service.monday || false,
-            tuesday: service.tuesday || false,
-            wednesday: service.wednesday || false,
-            thursday: service.thursday || false,
-            friday: service.friday || false,
-            saturday: service.saturday || false,
-            sunday: service.sunday || false,
-          },
-          timePackages: service.timePackages || 4,
+          workingDays: formData.workingDays, // Keep default working days
         });
       }
     } catch (error) {
-      setError("Failed to load service data");
       console.error("Error loading service data:", error);
+      toast.error("Failed to load service details");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -77,18 +82,7 @@ const ServiceDetails = ({ serviceData }) => {
     }));
   };
 
-  const handleWorkHoursChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      workHours: {
-        ...prev.workHours,
-        [name]: value,
-      },
-    }));
-  };
-
-  const handleDayToggle = (day) => {
+  const handleWorkingDaysChange = (day) => {
     setFormData((prev) => ({
       ...prev,
       workingDays: {
@@ -98,44 +92,48 @@ const ServiceDetails = ({ serviceData }) => {
     }));
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const handleSubmit = async () => {
     try {
-      await updateProviderService(formData);
-      setSuccess(true);
-      setError(null);
+      setLoading(true);
+
+      // Convert time strings to LocalDateTime format
+      const [startHour, startMinute] = formData.startTime.split(":");
+      const [endHour, endMinute] = formData.endTime.split(":");
+
+      const now = new Date();
+      const startDateTime = new Date(now);
+      startDateTime.setHours(parseInt(startHour), parseInt(startMinute), 0);
+
+      const endDateTime = new Date(now);
+      endDateTime.setHours(parseInt(endHour), parseInt(endMinute), 0);
+
+      const serviceData = {
+        service_id: formData.service_id,
+        name: formData.name,
+        specialization: formData.specialization,
+        duration: parseInt(formData.duration),
+        price: parseFloat(formData.price),
+        startTime: startDateTime.toISOString(),
+        endTime: endDateTime.toISOString(),
+        description: formData.description,
+        category: formData.category,
+      };
+
+      await updateProviderService(serviceData);
+      toast.success("Service details updated successfully");
       setEditMode(false);
+      loadServiceData(); // Reload the data
     } catch (error) {
-      setError("Failed to update service details");
       console.error("Error updating service:", error);
+      toast.error("Failed to update service details");
+    } finally {
+      setLoading(false);
     }
   };
 
-  // Helper function to calculate and display time slot duration
-  const calculateTimeSlotDuration = (start, end, packages) => {
-    const [startHour, startMinute] = start.split(":").map(Number);
-    const [endHour, endMinute] = end.split(":").map(Number);
-
-    const startMinutes = startHour * 60 + startMinute;
-    const endMinutes = endHour * 60 + endMinute;
-    const totalMinutes = endMinutes - startMinutes;
-
-    const slotDuration = Math.floor(totalMinutes / packages);
-    const hours = Math.floor(slotDuration / 60);
-    const minutes = slotDuration % 60;
-
-    let durationText = "";
-    if (hours > 0) {
-      durationText += `${hours} hour${hours > 1 ? "s" : ""}`;
-    }
-    if (minutes > 0) {
-      durationText += `${hours > 0 ? " and " : ""}${minutes} minute${
-        minutes > 1 ? "s" : ""
-      }`;
-    }
-
-    return `Each time slot will be ${durationText} long.`;
-  };
+  if (loading) {
+    return <div className="text-center py-4">Loading service details...</div>;
+  }
 
   return (
     <div className="bg-cyan-100 p-8">
@@ -149,33 +147,33 @@ const ServiceDetails = ({ serviceData }) => {
             Edit Details
           </button>
         ) : (
-          <button
-            onClick={handleSubmit}
-            className="bg-green-500 text-white py-2 px-4 rounded hover:bg-green-600 transition"
-          >
-            Save Changes
-          </button>
+          <div className="space-x-2">
+            <button
+              onClick={() => {
+                setEditMode(false);
+                loadServiceData(); // Reset form data
+              }}
+              className="bg-gray-500 text-white py-2 px-4 rounded hover:bg-gray-600 transition"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={handleSubmit}
+              disabled={loading}
+              className="bg-green-500 text-white py-2 px-4 rounded hover:bg-green-600 transition disabled:opacity-50"
+            >
+              {loading ? "Saving..." : "Save Changes"}
+            </button>
+          </div>
         )}
       </div>
 
-      {error && (
-        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
-          {error}
-        </div>
-      )}
-
-      {success && (
-        <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4">
-          Service details updated successfully!
-        </div>
-      )}
-
       <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
-        <h3 className="text-lg font-medium mb-4">Provider Information</h3>
+        <h3 className="text-lg font-medium mb-4">Service Information</h3>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
           <div>
-            <label className="block text-gray-700 mb-1">Provider Name</label>
+            <label className="block text-gray-700 mb-1">Service Name</label>
             {editMode ? (
               <input
                 type="text"
@@ -190,9 +188,7 @@ const ServiceDetails = ({ serviceData }) => {
           </div>
 
           <div>
-            <label className="block text-gray-700 mb-1">
-              Specialty/Service
-            </label>
+            <label className="block text-gray-700 mb-1">Specialization</label>
             {editMode ? (
               <input
                 type="text"
@@ -209,6 +205,23 @@ const ServiceDetails = ({ serviceData }) => {
           </div>
 
           <div>
+            <label className="block text-gray-700 mb-1">
+              Duration (minutes)
+            </label>
+            {editMode ? (
+              <input
+                type="number"
+                name="duration"
+                value={formData.duration}
+                onChange={handleChange}
+                className="w-full border rounded-md p-2"
+              />
+            ) : (
+              <p className="py-2">{formData.duration} minutes</p>
+            )}
+          </div>
+
+          <div>
             <label className="block text-gray-700 mb-1">Price</label>
             {editMode ? (
               <input
@@ -219,21 +232,7 @@ const ServiceDetails = ({ serviceData }) => {
                 className="w-full border rounded-md p-2"
               />
             ) : (
-              <p className="py-2">{formData.price || "Not specified"}</p>
-            )}
-          </div>
-
-          <div>
-            <label className="block text-gray-700 mb-1">Description</label>
-            {editMode ? (
-              <textarea
-                name="description"
-                value={formData.description}
-                onChange={handleChange}
-                className="w-full border rounded-md p-2"
-              />
-            ) : (
-              <p className="py-2">{formData.description || "Not specified"}</p>
+              <p className="py-2">${formData.price}</p>
             )}
           </div>
 
@@ -252,22 +251,74 @@ const ServiceDetails = ({ serviceData }) => {
             )}
           </div>
         </div>
+
+        <div className="mb-6">
+          <label className="block text-gray-700 mb-1">Description</label>
+          {editMode ? (
+            <textarea
+              name="description"
+              value={formData.description}
+              onChange={handleChange}
+              className="w-full border rounded-md p-2"
+              rows="3"
+            />
+          ) : (
+            <p className="py-2">{formData.description || "Not specified"}</p>
+          )}
+        </div>
       </div>
 
       <div className="bg-white rounded-lg shadow-sm p-6">
         <h3 className="text-lg font-medium mb-4">Availability Settings</h3>
 
         <div className="mb-6">
+          <h4 className="font-medium mb-2">Working Hours</h4>
+          {editMode ? (
+            <div className="flex items-center gap-2">
+              <div>
+                <label className="block text-gray-700 text-sm mb-1">
+                  Start Time
+                </label>
+                <input
+                  type="time"
+                  name="startTime"
+                  value={formData.startTime}
+                  onChange={handleChange}
+                  className="border rounded-md p-2"
+                />
+              </div>
+              <span className="mt-6">to</span>
+              <div>
+                <label className="block text-gray-700 text-sm mb-1">
+                  End Time
+                </label>
+                <input
+                  type="time"
+                  name="endTime"
+                  value={formData.endTime}
+                  onChange={handleChange}
+                  className="border rounded-md p-2"
+                />
+              </div>
+            </div>
+          ) : (
+            <p className="py-2">
+              {formData.startTime} to {formData.endTime}
+            </p>
+          )}
+        </div>
+
+        <div className="mb-6">
           <h4 className="font-medium mb-2">Working Days</h4>
           {editMode ? (
             <div className="flex flex-wrap gap-2">
-              {Object.keys(formData.workingDays).map((day) => (
+              {Object.entries(formData.workingDays).map(([day, isWorking]) => (
                 <button
                   key={day}
-                  onClick={() => handleDayToggle(day)}
+                  onClick={() => handleWorkingDaysChange(day)}
                   type="button"
                   className={`py-2 px-3 rounded-md ${
-                    formData.workingDays[day]
+                    isWorking
                       ? "bg-blue-500 text-white"
                       : "bg-gray-200 text-gray-700"
                   }`}
@@ -278,11 +329,11 @@ const ServiceDetails = ({ serviceData }) => {
             </div>
           ) : (
             <div className="flex flex-wrap gap-2">
-              {Object.keys(formData.workingDays).map((day) => (
+              {Object.entries(formData.workingDays).map(([day, isWorking]) => (
                 <span
                   key={day}
                   className={`py-2 px-3 rounded-md ${
-                    formData.workingDays[day]
+                    isWorking
                       ? "bg-blue-500 text-white"
                       : "bg-gray-200 text-gray-700"
                   }`}
@@ -292,82 +343,6 @@ const ServiceDetails = ({ serviceData }) => {
               ))}
             </div>
           )}
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-          <div>
-            <h4 className="font-medium mb-2">Working Hours</h4>
-            {editMode ? (
-              <div className="flex items-center gap-2">
-                <div>
-                  <label className="block text-gray-700 text-sm mb-1">
-                    Start Time
-                  </label>
-                  <input
-                    type="time"
-                    name="start"
-                    value={formData.workHours.start}
-                    onChange={handleWorkHoursChange}
-                    className="border rounded-md p-2"
-                  />
-                </div>
-                <span className="mt-6">to</span>
-                <div>
-                  <label className="block text-gray-700 text-sm mb-1">
-                    End Time
-                  </label>
-                  <input
-                    type="time"
-                    name="end"
-                    value={formData.workHours.end}
-                    onChange={handleWorkHoursChange}
-                    className="border rounded-md p-2"
-                  />
-                </div>
-              </div>
-            ) : (
-              <p className="py-2">
-                {formData.workHours.start} to {formData.workHours.end}
-              </p>
-            )}
-          </div>
-
-          <div>
-            <h4 className="font-medium mb-2">Time Slots</h4>
-            {editMode ? (
-              <div>
-                <label className="block text-gray-700 text-sm mb-1">
-                  Number of Time Slots
-                </label>
-                <input
-                  type="number"
-                  min="1"
-                  max="12"
-                  value={formData.timePackages}
-                  onChange={handleChange}
-                  className="border rounded-md p-2 w-full"
-                />
-              </div>
-            ) : (
-              <p className="py-2">
-                {formData.timePackages} slots per working day
-              </p>
-            )}
-          </div>
-        </div>
-
-        <div className="bg-blue-50 p-4 rounded-md">
-          <h4 className="font-medium mb-2">Time Slot Summary</h4>
-          <p className="text-sm text-gray-700">
-            Working hours: {formData.workHours.start} - {formData.workHours.end}
-          </p>
-          <p className="text-sm text-gray-700">
-            {calculateTimeSlotDuration(
-              formData.workHours.start,
-              formData.workHours.end,
-              formData.timePackages
-            )}
-          </p>
         </div>
       </div>
     </div>
