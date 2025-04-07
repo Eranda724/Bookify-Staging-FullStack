@@ -17,4 +17,4 @@ ALTER TABLE service_date_time
 ADD COLUMN work_hours_start VARCHAR(255) NOT NULL,
 ADD COLUMN work_hours_end VARCHAR(255) NOT NULL,
 ADD COLUMN working_days JSON,
-ADD COLUMN time_packages INT NOT NULL DEFAULT 4; 
+ADD COLUMN time_packages INT NOT NULL; 
